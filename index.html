@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Coleta de Validade</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json" />
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js")
+        .then(reg => console.log("Service Worker registrado:", reg))
+        .catch(err => console.error("Erro no Service Worker:", err));
+    }
+  </script>
+
+  <!-- QR Code Scanner -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #0d283d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      color: #0d283d;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      color: #0d283d;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #0d283d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    #mensagem {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+    #video-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      min-height: 200px;
+      border: 1px solid #ccc;
+    }
+    #close-camera-btn {
+      background-color: #f44336;
+      color: white;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>COLETA DE VALIDADE</h2>
+
+    <label for="operador">Operador:</label>
+    <select id="operador">
+      <option value="">Carregando operadores...</option>
+    </select>
+
+    <label for="codigo">Código do Produto:</label>
+    <input type="text" id="codigo" placeholder="Digite ou escaneie o código" />
+
+    <button type="button" onclick="iniciarLeitura()">Ler Código</button>
+
+    <div id="video-container">
+      <div id="reader"></div>
+      <button id="close-camera-btn" onclick="fecharCamera()">Fechar Câmera</button>
+    </div>
+
+    <label for="validade">Data de Validade:</label>
+    <input type="date" id="validade" required />
+
+    <button id="btn-enviar" onclick="enviarDados()">Enviar</button>
+    <p id="mensagem"></p>
+  </div>
+
+  <script>
+    const scriptUrl = "https://script.google.com/macros/s/SEU_ID_DO_SCRIPT/exec";
+
+    let html5QrCode = null;
+
+    // Carrega operadores da aba OPERADORES
+    window.onload = async () => {
+      const select = document.getElementById("operador");
+      try {
+        const res = await fetch(`${scriptUrl}?action=getOperadores`);
+        const operadores = await res.json();
+        select.innerHTML = `<option value="">Selecione o operador</option>`;
+        operadores.forEach(nome => {
+          const opt = document.createElement("option");
+          opt.value = nome;
+          opt.textContent = nome;
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        select.innerHTML = `<option value="">Erro ao carregar</option>`;
+        console.error(e);
+      }
+    };
+
+    function iniciarLeitura() {
+      document.getElementById("video-container").style.display = "flex";
+      html5QrCode = new Html5Qrcode("reader");
+      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
+    }
+
+    function onScanSuccess(decodedText) {
+      document.getElementById("codigo").value = decodedText;
+      fecharCamera();
+    }
+
+    function fecharCamera() {
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => html5QrCode.clear());
+      }
+      document.getElementById("video-container").style.display = "none";
+    }
+
+    async function enviarDados() {
+      const operador = document.getElementById("operador").value;
+      const codigo = document.getElementById("codigo").value.trim();
+      const validade = document.getElementById("validade").value;
+      const msg = document.getElementById("mensagem");
+
+      if (!operador || !codigo || !validade) {
+        msg.textContent = "Preencha todos os campos.";
+        msg.style.color = "#f44336";
+        return;
+      }
+
+      const params = new URLSearchParams({
+        action: "salvarDados",
+        operador, codigo, validade
+      });
+
+      try {
+        const res = await fetch(`${scriptUrl}?${params.toString()}`);
+        const data = await res.json();
+        msg.textContent = data.mensagem;
+        msg.style.color = data.status === "Sucesso" ? "#0d283d" : "#f44336";
+
+        if (data.status === "Sucesso") {
+          document.getElementById("codigo").value = "";
+          document.getElementById("validade").value = "";
+          document.getElementById("operador").selectedIndex = 0;
+        }
+      } catch (e) {
+        msg.textContent = "Erro ao enviar dados.";
+        msg.style.color = "#f44336";
+      }
+    }
+  </script>
+</body>
+</html>
