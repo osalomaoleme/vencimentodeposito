@@ -169,6 +169,10 @@
       const validade = document.getElementById("validade").value;
       const msg = document.getElementById("mensagem");
 
+      // Mensagem inicial
+      msg.textContent = "Enviando dados...";
+      msg.style.color = "#0d283d";
+
       if (!operador || !codigo || !validade) {
         msg.textContent = "Preencha todos os campos.";
         msg.style.color = "#f44336";
@@ -183,6 +187,7 @@
       try {
         const res = await fetch(`${scriptUrl}?${params.toString()}`);
         const data = await res.json();
+
         msg.textContent = data.mensagem;
         msg.style.color = data.status === "Sucesso" ? "#0d283d" : "#f44336";
 
@@ -195,6 +200,11 @@
         msg.textContent = "Erro ao enviar dados.";
         msg.style.color = "#f44336";
       }
+
+      // Limpa a mensagem após 3 segundos
+      setTimeout(() => {
+        msg.textContent = "";
+      }, 3000);
     }
   </script>
 </body>
