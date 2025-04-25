@@ -17,83 +17,117 @@
 
   <!-- QR Code Scanner -->
   <script src="https://unpkg.com/html5-qrcode"></script>
+<style>
+  /* Reset e box-sizing para lidar melhor com padding/border */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
+  /* Base de font-size para rems */
+  html {
+    font-size: 16px;
+  }
+  body {
+    background-color: #0d283d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 1rem; /* antes 20px */
+    text-align: center;
+  }
+  .container {
+    background: #fff;
+    padding: 1rem; /* antes 20px */
+    border-radius: 0.75rem; /* antes 10px */
+    box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.2); /* antes 4px/10px */
+    width: 90%;           /* flui conforme a largura disponível */
+    max-width: 360px;     /* nunca maior que isto em telas maiores */
+  }
+  h2 {
+    color: #0d283d;
+    margin-bottom: 1rem;  /* antes 20px */
+    font-size: 1.5rem;
+  }
+  label {
+    display: block;
+    margin: 0.75rem 0 0.5rem; /* antes 10px e 5px */
+    color: #0d283d;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  input, select {
+    width: 100%;
+    padding: 0.75rem;     /* antes 12px */
+    margin-bottom: 1rem;  /* antes 15px */
+    border: 1px solid #ccc;
+    border-radius: 0.3125rem; /* antes 5px */
+    font-size: 1rem;
+  }
+  button {
+    width: 100%;
+    padding: 0.875rem;    /* antes 14px */
+    background-color: #0d283d;
+    color: #fff;
+    border: none;
+    border-radius: 0.3125rem; /* antes 5px */
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  #mensagem {
+    margin-top: 1rem;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  #video-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 360px;
+  }
+  #reader {
+    width: 100%;
+    max-width: 360px;
+    min-height: 12.5rem;  /* ~200px */
+    border: 1px solid #ccc;
+  }
+  #close-camera-btn {
+    background-color: #f44336;
+    color: #fff;
+    margin-top: 0.625rem; /* antes 10px */
+    padding: 0.75rem;
+    border-radius: 0.3125rem;
+    width: 100%;
+    font-size: 1rem;
+  }
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-    body {
-      background-color: #0d283d;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-      width: 100%;
-      max-width: 400px;
-    }
-    h2 {
-      color: #0d283d;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-      color: #0d283d;
-      font-weight: bold;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background-color: #0d283d;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    #mensagem {
-      margin-top: 15px;
-      font-weight: bold;
-      text-align: center;
-    }
-    #video-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    #reader {
-      width: 100%;
-      max-width: 400px;
-      min-height: 200px;
-      border: 1px solid #ccc;
-    }
-    #close-camera-btn {
-      background-color: #f44336;
-      color: white;
-      margin-top: 10px;
-    }
-  </style>
+  /* Ajustes para telas bem estreitas (<=480px) */
+  @media (max-width: 480px) {
+    html { font-size: 14px; }
+    body { padding: 0.5rem; }
+    .container { padding: 0.75rem; }
+    h2 { font-size: 1.25rem; }
+    input, select, button { padding: 0.5rem; font-size: 0.875rem; }
+  }
+  /* Tablets e pequenos laptops */
+  @media (min-width: 768px) {
+    html { font-size: 18px; }
+    .container { max-width: 400px; }
+    h2 { font-size: 1.75rem; }
+  }
+  /* Desktops maiores */
+  @media (min-width: 1200px) {
+    html { font-size: 20px; }
+    .container { max-width: 450px; }
+  }
+</style>
+
 </head>
 <body>
   <div class="container">
