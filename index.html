@@ -17,88 +17,25 @@
 
   <!-- QR Code Scanner -->
   <script src="https://unpkg.com/html5-qrcode"></script>
-<style>
-  /* Reset e box-sizing para lidar melhor com padding/border */
-  * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-    body {
-      background-color: #0d283d;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-      width: 100%;
-      max-width: 400px;
-    }
-    h2 {
-      color: #0d283d;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-      color: #0d283d;
-      font-weight: bold;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      background-color: #0d283d;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    #mensagem {
-      margin-top: 15px;
-      font-weight: bold;
-      text-align: center;
-    }
-    #video-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-    #reader {
-      width: 100%;
-      max-width: 400px;
-      min-height: 200px;
-      border: 1px solid #ccc;
-    }
-    #close-camera-btn {
-      background-color: #f44336;
-      color: white;
-      margin-top: 10px;
-    }
-</style>
 
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #0d283d; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); width: 100%; max-width: 400px; }
+    h2 { color: #0d283d; margin-bottom: 20px; text-align: center; }
+    label { display: block; margin: 10px 0 5px; color: #0d283d; font-weight: bold; }
+    input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+    button { width: 100%; padding: 14px; background-color: #0d283d; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+    #mensagem { margin-top: 15px; font-weight: bold; text-align: center; }
+    #video-container { display: none; flex-direction: column; align-items: center; margin-bottom: 15px; }
+    #reader { width: 100%; max-width: 400px; min-height: 200px; border: 1px solid #ccc; }
+    #close-camera-btn { background-color: #f44336; color: white; margin-top: 10px; }
+  </style>
 </head>
+
 <body>
   <div class="container">
-    <h2>COLETA DE VALIDADE</h2>
+    <h2 id="titulo">COLETA DE VALIDADE</h2>
 
     <label for="operador">Operador:</label>
     <select id="operador">
@@ -123,11 +60,24 @@
   </div>
 
   <script>
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbzxacz5IO8tduK8lbjH02nmS3Hp4GUKPkToTdaVwp8Dh6DYNhC_hnSxD_3Xe0Z10ERqEw/exec";
+    const scriptUrls = {
+      boituva: "https://script.google.com/macros/s/AKfycbzxacz5IO8tduK8lbjH02nmS3Hp4GUKPkToTdaVwp8Dh6DYNhC_hnSxD_3Xe0Z10ERqEw/exec",
+      salto: "https://script.google.com/macros/s/AKfycbwsdOpP_ArfuFaGaPeO-ZR7yxh7aZcMdYcXN3PXrPN5Q-4dUyogXmLn5gZgXDrSROXs/exec"
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const loja = urlParams.get('loja');
+    const scriptUrl = scriptUrls[loja];
+
+    if (!scriptUrl) {
+      alert("Loja inválida ou não informada na URL. Verifique o endereço usado.");
+      throw new Error("Loja inválida ou não encontrada.");
+    }
+
+    document.getElementById("titulo").textContent = `COLETA DE VALIDADE - ${loja.toUpperCase()}`;
 
     let html5QrCode = null;
 
-    // Carrega operadores da aba OPERADORES
     window.onload = async () => {
       const select = document.getElementById("operador");
       try {
@@ -170,7 +120,6 @@
       const validade = document.getElementById("validade").value;
       const msg = document.getElementById("mensagem");
 
-      // Mensagem inicial
       msg.textContent = "Enviando dados...";
       msg.style.color = "#0d283d";
 
@@ -202,7 +151,6 @@
         msg.style.color = "#f44336";
       }
 
-      // Limpa a mensagem após 3 segundos
       setTimeout(() => {
         msg.textContent = "";
       }, 3000);
