@@ -15,6 +15,17 @@
     }
   </script>
 
+  <script>
+  // Captura o parâmetro da loja na URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const loja = urlParams.get("loja");
+
+  // Se não estiver logado, redireciona para a página de login mantendo o parâmetro da loja
+  if (!sessionStorage.getItem("usuarioLogado")) {
+    window.location.href = `login.html?loja=${loja}`;
+  }
+</script>
+
   <!-- QR Code Scanner -->
   <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -65,15 +76,14 @@
       salto: "https://script.google.com/macros/s/AKfycbwTMg64mKqfmFz-7I4gohAFLIp9MPAosJYkLNtz99tJOFYhVtqL7ZbnC6f__mKPK5UT/exec"
     };
 
-    const loja2 = urlParams.get('loja');
-    const scriptUrl = scriptUrls[loja2];
+    const scriptUrl = scriptUrls[loja];
 
     if (!scriptUrl) {
       alert("Loja inválida ou não informada na URL. Verifique o endereço usado.");
       throw new Error("Loja inválida ou não encontrada.");
     }
 
-    document.getElementById("titulo").textContent = `COLETA DE VALIDADE - ${loja2.toUpperCase()}`;
+    document.getElementById("titulo").textContent = `COLETA DE VALIDADE - ${loja.toUpperCase()}`;
 
     let html5QrCode = null;
 
