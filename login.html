@@ -88,11 +88,20 @@
     <div id="login-container">
       <h2>Login</h2>
       <input type="text" id="username" placeholder="Usuário">
-      <input type="number" id="password" placeholder="Senha">
-      <button onclick="login()">Entrar</button>
-      <p id="error-msg" class="error"></p>
-    </div>
-  </div>
+  <input 
+    type="tel" 
+    id="password" 
+    placeholder="Senha" 
+    inputmode="numeric" 
+    pattern="\d*" 
+    style="-webkit-text-security: disc;" 
+    maxlength="6" 
+    required
+  >
+  <button onclick="login()">Entrar</button>
+  <p id="error-msg" class="error"></p>
+</div>
+
 
   <script>
     const scriptUrls = {
