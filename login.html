@@ -19,7 +19,7 @@
       justify-content: flex-start;
       min-height: 100vh;
     }
-    .logo-container { margin-bottom: 40px; width: 60%; max-width: 200px; }
+    .logo-container { margin-bottom: 5px; width: 60%; max-width: 200px; }
     .logo-container img { width: 100%; height: auto; }
     .container { display: flex; align-items: center; justify-content: center; width: 100%; flex: 1; }
     #login-container {
@@ -36,6 +36,7 @@
       padding: .75rem;
       margin: .5rem 0;
       font-size: 1rem;
+      margin-top: 0;
     }
     button {
       background: #0D283D;
@@ -68,7 +69,7 @@
     <div id="login-container">
       <h2>Login</h2>
       <input type="text" id="username" placeholder="Usuário">
-      <input type="password" id="password" placeholder="Senha">
+      <input type="number" id="password" placeholder="Senha">
       <button onclick="login()">Entrar</button>
       <p id="error-msg" class="error"></p>
     </div>
