@@ -74,14 +74,15 @@
       salto: "https://script.google.com/macros/s/AKfycbwTMg64mKqfmFz-7I4gohAFLIp9MPAosJYkLNtz99tJOFYhVtqL7ZbnC6f__mKPK5UT/exec"
     };
 
-    const scriptUrl = scriptUrls[loja];
+    const loja = urlParams.get('loja'); // já foi declarado acima, aqui só reutiliza
+    const scriptUrl = scriptUrls[loja2];
 
     if (!scriptUrl) {
       alert("Loja inválida ou não informada na URL. Verifique o endereço usado.");
       throw new Error("Loja inválida ou não encontrada.");
     }
 
-    document.getElementById("titulo").textContent = `COLETA DE VALIDADE - ${loja.toUpperCase()}`;
+    document.getElementById("titulo").textContent = `COLETA DE VALIDADE - ${loja2.toUpperCase()}`;
 
     let html5QrCode = null;
 
