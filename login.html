@@ -87,17 +87,12 @@
   <div class="container">
     <div id="login-container">
       <h2>Login</h2>
-      <input type="text" id="username" placeholder="Usuário">
-  <input 
-    type="tel" 
-    id="password" 
-    placeholder="Senha" 
-    inputmode="numeric" 
-    pattern="\d*" 
-    style="-webkit-text-security: disc;" 
-    maxlength="6" 
-    required
-  >
+      <input type="text" id="username" name="user_nome" placeholder="Usuário"
+       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input type="tel" id="password" name="user_senha" placeholder="Senha"
+       inputmode="numeric" pattern="\\d*" autocomplete="off"
+       style="-webkit-text-security: disc;" maxlength="6" required>
+
   <button onclick="login()">Entrar</button>
   <p id="error-msg" class="error"></p>
 </div>
