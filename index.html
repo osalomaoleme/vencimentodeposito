@@ -26,7 +26,7 @@
     }
 
     const usuarioLogado = sessionStorage.getItem("usuarioLogado");
-    if (!usuarioLogado) {
+    if (!usuarioLogado || loja !== lojaLogada) {
       window.location.href = `https://osalomaoleme.github.io/vencimentodeposito/login.html${loja ? '?loja=' + loja : ''}`;
     }
 
