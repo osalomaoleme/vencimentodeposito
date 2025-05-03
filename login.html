@@ -131,7 +131,7 @@
 
         if (result.status === "ok") {
           sessionStorage.setItem("usuarioLogado", username);
-          sessionStorage.setitem("lojaLogada", loja);
+          sessionStorage.setItem("lojaLogada", loja);
           window.location.href = `index.html?loja=${loja}`;
         } else {
           errorMsg.innerText = "Usuário ou senha incorretos.";
