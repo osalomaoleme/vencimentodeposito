@@ -99,6 +99,14 @@
 
 
   <script>
+
+    const lojaLogada = sessionStorage.getItem("lojaLogada");
+    const usuarioLogado = sessionStorage.getItem("usuarioLogado");
+
+    if (lojaLogada && usuarioLogado) {
+     window.location.href = `index.html?loja=${lojaLogada}`;
+    };
+    
     const scriptUrls = {
       boituva: "https://script.google.com/macros/s/AKfycbxMHxz2DzR6kXDnxAxeTVTR66guR0hWUEQzOd7co9805R5Rv8faabAucLj2tlW1K1bAAQ/exec",
       salto: "https://script.google.com/macros/s/AKfycbxPzATdhAen8cK_VAso7RsqeAX5Q1uLuByCD6UrrvVqWtgLtL43XWQ2aIQq2aBqlW7O/exec",
