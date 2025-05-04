@@ -1,64 +1,98 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
+
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
     body {
       font-family: Arial, sans-serif;
-      background-color: #0d283d;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .container {
-      background: white;
-      color: #0d283d;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #00000050;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      background-color: #0d283d;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    #error-msg {
-      color: red;
-      margin-top: 10px;
       text-align: center;
+      background-color: #f4f4f4;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+    }
+    .logo-container { margin-bottom: 5px; width: 60%; max-width: 200px; }
+    .logo-container img { width: 100%; height: auto; margin-bottom: 0; }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      flex: 0;
+      gap: 0.5rem;
+    }
+    #login-container {
+      background: #fff;
+      padding: 1rem;
+      border-radius: .5rem;
+      box-shadow: 0 0 .5rem rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 320px;
+      margin-top: 0;
+    }
+    #login-container h2 { margin-bottom: .5rem; font-size: 1.25rem; }
+    input {
+      width: 100%;
+      padding: .75rem;
+      margin: .5rem 0;
+      font-size: 1rem;
+    }
+    button {
+      background: #0D283D;
+      color: #fff;
+      border: none;
+      padding: .75rem;
+      width: 100%;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: .25rem;
+    }
+    .error {
+      color: red;
+      font-size: .875rem;
+      margin-top: .5rem;
+    }
+    @media (max-width: 480px) {
+      html { font-size: 14px; }
+      body { padding: .5rem; }
+      #login-container { padding: .75rem; }
+      input, button { padding: .5rem; font-size: .875rem; }
     }
   </style>
 </head>
 <body>
-  <div class="container" id="login-container">
-    <h2>Login</h2>
-    <input type="text" id="username" placeholder="Usuário" />
-    <input type="password" id="password" placeholder="Senha" />
-    <button onclick="login()">Entrar</button>
-    <div id="error-msg"></div>
+  <div class="logo-container">
+    <img src="logodeltap.png" alt="Logo DeltaP" />
+  </div>
+  <div class="container">
+    <div id="login-container">
+      <h2>Login</h2>
+      <input type="text" id="username" placeholder="Usuário" autocomplete="off">
+      <input type="tel" id="password" placeholder="Senha" maxlength="6"
+        style="-webkit-text-security: disc;" inputmode="numeric" pattern="\\d*"
+        autocomplete="off">
+      <button onclick="login()">Entrar</button>
+      <p id="error-msg" class="error"></p>
+    </div>
   </div>
 
   <script>
+    const lojaLogada = sessionStorage.getItem("lojaLogada");
+    const usuarioLogado = sessionStorage.getItem("usuarioLogado");
+
+    if (lojaLogada && usuarioLogado) {
+      window.location.href = `index.html?loja=${lojaLogada}`;
+    }
+
     const scriptUrls = {
       boituva: "https://script.google.com/macros/s/AKfycbxMHxz2DzR6kXDnxAxeTVTR66guR0hWUEQzOd7co9805R5Rv8faabAucLj2tlW1K1bAAQ/exec",
       salto: "https://script.google.com/macros/s/AKfycbxPzATdhAen8cK_VAso7RsqeAX5Q1uLuByCD6UrrvVqWtgLtL43XWQ2aIQq2aBqlW7O/exec",
@@ -70,8 +104,8 @@
     const scriptUrl = scriptUrls[loja];
 
     if (!scriptUrl) {
-      document.getElementById("login-container").innerHTML = "<p style='color:red'>Loja inválida ou não informada. Acesse o link correto com ?loja=xyz</p>";
-      throw new Error("Loja inválida.");
+      document.getElementById("login-container").innerHTML = "<p style='color:red'>Loja inválida. Verifique o link.</p>";
+      throw new Error("Loja inválida ou não informada.");
     }
 
     async function login() {
@@ -98,7 +132,7 @@
         }
       } catch (err) {
         console.error("Erro:", err);
-        errorMsg.innerText = "Erro ao conectar ao servidor.";
+        errorMsg.innerText = "Erro na comunicação com o servidor.";
       }
     }
   </script>
