@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Coleta de Validade</title>
 
+  
   <script src="https://unpkg.com/html5-qrcode"></script>
 
   <script>
@@ -12,8 +13,8 @@
     const loja = urlParams.get("loja");
 
     const scriptUrls = {
-      boituva: "https://script.google.com/macros/s/AKfycbyjL_Swh0igy3bBJnv6fghFgCv_aQ6JGIC-GdfydDG58e2DfuGMe8-4eLaZ4LCN_L4ajw/exec",
-      salto: "https://script.google.com/macros/s/AKfycbxPzATdhAen8cK_VAso7RsqeAX5Q1uLuByCD6UrrvVqWtgLtL43XWQ2aIQq2aBqlW7O/exec",
+      boituva: "https://script.google.com/macros/s/AKfycbzxacz5IO8tduK8lbjH02nmS3Hp4GUKPkToTdaVwp8Dh6DYNhC_hnSxD_3Xe0Z10ERqEw/exec",
+      salto: "https://script.google.com/macros/s/AKfycbwsdOpP_ArfuFaGaPeO-ZR7yxh7aZcMdYcXN3PXrPN5Q-4dUyogXmLn5gZgXDrSROXs/exec",
       teste: "https://script.google.com/macros/s/AKfycbzDr1hY6gA8xSXcyH-Q6-z_H3CRh3YNotrDsyPEV94kTEhb1jNAdn4OgMqQjbt0BA1i/exec"
     };
 
@@ -26,20 +27,31 @@
 
     const usuarioLogado = sessionStorage.getItem("usuarioLogado");
     if (!usuarioLogado) {
-      window.location.href = `https://osalomaoleme.github.io/vencimentodeposito/login.html${loja ? '?loja=' + loja : ''}`;
+      window.location.href = `https://osalomaoleme.github.io/testedeposito/login.html${loja ? '?loja=' + loja : ''}`;
     }
 
     document.title = `Coleta de Validade - ${loja.toUpperCase()}`;
   </script>
 
   <style>
-    /* Seu CSS aqui... (mantém igual ao atual) */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background-color: #0d283d; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.2); width: 100%; max-width: 400px; }
+    h2 { color: #0d283d; margin-bottom: 20px; text-align: center; }
+    label { display: block; margin: 10px 0 5px; color: #0d283d; font-weight: bold; }
+    input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+    button { width: 100%; padding: 14px; background-color: #0d283d; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+    #mensagem { margin-top: 15px; font-weight: bold; text-align: center; }
+    #video-container { display: none; flex-direction: column; align-items: center; margin-bottom: 15px; }
+    #reader { width: 100%; max-width: 400px; min-height: 200px; border: 1px solid #ccc; }
+    #close-camera-btn { background-color: #f44336; color: white; margin-top: 10px; }
   </style>
 </head>
 
 <body>
   <div class="container">
     <h2 id="titulo">COLETA DE VALIDADE</h2>
+
     <label for="operador">Operador:</label>
     <select id="operador"><option value="">Carregando operadores...</option></select>
 
@@ -61,85 +73,91 @@
   </div>
 
   <script>
-    document.getElementById("titulo").textContent = `COLETA DE VALIDADE - ${loja.toUpperCase()}`;
+  document.getElementById("titulo").textContent = `COLETA DE VALIDADE - ${loja.toUpperCase()}`;
 
-    let html5QrCode = null;
+  let html5QrCode = null;
 
-    window.onload = async () => {
-      const select = document.getElementById("operador");
-      try {
-        const res = await fetch(`${scriptUrl}?action=getOperadores`);
-        const operadores = await res.json();
-        select.innerHTML = `<option value="">Selecione o operador</option>`;
-        operadores.forEach(nome => {
-          const opt = document.createElement("option");
-          opt.value = nome;
-          opt.textContent = nome;
-          select.appendChild(opt);
-        });
+  window.onload = async () => {
+    const select = document.getElementById("operador");
+    try {
+      const res = await fetch(`${scriptUrl}?action=getOperadores`);
+      const operadores = await res.json();
+      select.innerHTML = `<option value="">Selecione o operador</option>`;
+      operadores.forEach(nome => {
+        const opt = document.createElement("option");
+        opt.value = nome;
+        opt.textContent = nome;
+        select.appendChild(opt);
+      });
 
-        const operadorSalvo = sessionStorage.getItem("operadorSelecionado");
-        if (operadorSalvo) select.value = operadorSalvo;
-
-        select.addEventListener("change", () => {
-          sessionStorage.setItem("operadorSelecionado", select.value);
-        });
-
-      } catch (e) {
-        select.innerHTML = `<option value="">Erro ao carregar</option>`;
-      }
-    };
-
-    function iniciarLeitura() {
-      document.getElementById("video-container").style.display = "flex";
-      html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
-    }
-
-    function onScanSuccess(decodedText) {
-      document.getElementById("codigo").value = decodedText;
-      fecharCamera();
-    }
-
-    function fecharCamera() {
-      if (html5QrCode) html5QrCode.stop().then(() => html5QrCode.clear());
-      document.getElementById("video-container").style.display = "none";
-    }
-
-    async function enviarDados() {
-      const operador = document.getElementById("operador").value;
-      const codigo = document.getElementById("codigo").value.trim();
-      const validade = document.getElementById("validade").value;
-      const msg = document.getElementById("mensagem");
-
-      msg.textContent = "Enviando dados...";
-      msg.style.color = "#0d283d";
-
-      if (!operador || !codigo || !validade) {
-        msg.textContent = "Preencha todos os campos.";
-        msg.style.color = "#f44336";
-        return;
+      // Restaura operador salvo na sessão (se houver)
+      const operadorSalvo = sessionStorage.getItem("operadorSelecionado");
+      if (operadorSalvo) {
+        select.value = operadorSalvo;
       }
 
-      const params = new URLSearchParams({ action: "salvarDados", operador, codigo, validade });
+      // Salva operador sempre que for alterado
+      select.addEventListener("change", () => {
+        sessionStorage.setItem("operadorSelecionado", select.value);
+      });
 
-      try {
-        const res = await fetch(`${scriptUrl}?${params.toString()}`);
-        const data = await res.json();
-        msg.textContent = data.mensagem;
-        msg.style.color = data.status === "Sucesso" ? "#0d283d" : "#f44336";
-
-        if (data.status === "Sucesso") {
-          document.getElementById("codigo").value = "";
-          document.getElementById("validade").value = "";
-        }
-      } catch {
-        msg.textContent = "Erro ao enviar dados.";
-        msg.style.color = "#f44336";
-      }
-
-      setTimeout(() => { msg.textContent = ""; }, 3000);
+    } catch (e) {
+      select.innerHTML = `<option value="">Erro ao carregar</option>`;
     }
-  </script>
+  };
+
+  function iniciarLeitura() {
+    document.getElementById("video-container").style.display = "flex";
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
+  }
+
+  function onScanSuccess(decodedText) {
+    document.getElementById("codigo").value = decodedText;
+    fecharCamera();
+  }
+
+  function fecharCamera() {
+    if (html5QrCode) html5QrCode.stop().then(() => html5QrCode.clear());
+    document.getElementById("video-container").style.display = "none";
+  }
+
+  async function enviarDados() {
+    const operador = document.getElementById("operador").value;
+    const codigo = document.getElementById("codigo").value.trim();
+    const validade = document.getElementById("validade").value;
+    const msg = document.getElementById("mensagem");
+
+    msg.textContent = "Enviando dados...";
+    msg.style.color = "#0d283d";
+
+    if (!operador || !codigo || !validade) {
+      msg.textContent = "Preencha todos os campos.";
+      msg.style.color = "#f44336";
+      return;
+    }
+
+    const params = new URLSearchParams({ action: "salvarDados", operador, codigo, validade });
+
+    try {
+      const res = await fetch(`${scriptUrl}?${params.toString()}`);
+      const data = await res.json();
+      msg.textContent = data.mensagem;
+      msg.style.color = data.status === "Sucesso" ? "#0d283d" : "#f44336";
+
+      if (data.status === "Sucesso") {
+        document.getElementById("codigo").value = "";
+        document.getElementById("validade").value = "";
+        // Removido: document.getElementById("operador").selectedIndex = 0;
+      }
+    } catch {
+      msg.textContent = "Erro ao enviar dados.";
+      msg.style.color = "#f44336";
+    }
+
+    setTimeout(() => { msg.textContent = ""; }, 3000);
+  }
+</script>
+
 </body>
 </html>
