@@ -15,16 +15,6 @@
     box-sizing: border-box;
     font-family: Arial, sans-serif;
   }
-    footer{
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    padding: 10px;
-    background-color: #0d283d;
-    font-size: 14px;
-  }
 
   body {
     background-color: #0d283d;
@@ -207,49 +197,40 @@
   }
 
   async function enviarDados() {
-  const operador = document.getElementById("operador").value.trim();
-  const codigo = document.getElementById("codigo").value.trim();
-  const validade = document.getElementById("validade").value;
-  const msg = document.getElementById("mensagem");
+    const operador = document.getElementById("operador").value;
+    const codigo = document.getElementById("codigo").value.trim();
+    const validade = document.getElementById("validade").value;
+    const msg = document.getElementById("mensagem");
 
-  msg.textContent = "Enviando dados...";
-  msg.style.color = "#0d283d";
+    msg.textContent = "Enviando dados...";
+    msg.style.color = "#0d283d";
 
-  const operadorValido = Array.from(document.getElementById("operador").options)
-    .some(opt => opt.value === operador);
-
-  if (!operador || !codigo || !validade || !operadorValido) {
-    msg.textContent = "Preencha todos os campos corretamente.";
-    msg.style.color = "#f44336";
-    return;
-  }
-
-  const params = new URLSearchParams({ action: "salvarDados", operador, codigo, validade });
-
-  try {
-    const res = await fetch(`${scriptUrl}?${params.toString()}`);
-    const data = await res.json();
-    msg.textContent = data.mensagem;
-    msg.style.color = data.status === "Sucesso" ? "#0d283d" : "#f44336";
-
-    if (data.status === "Sucesso") {
-      document.getElementById("codigo").value = "";
-      document.getElementById("validade").value = "";
+    if (!operador || !codigo || !validade) {
+      msg.textContent = "Preencha todos os campos.";
+      msg.style.color = "#f44336";
+      return;
     }
-  } catch {
-    msg.textContent = "Erro ao enviar dados.";
-    msg.style.color = "#f44336";
+
+    const params = new URLSearchParams({ action: "salvarDados", operador, codigo, validade });
+
+    try {
+      const res = await fetch(`${scriptUrl}?${params.toString()}`);
+      const data = await res.json();
+      msg.textContent = data.mensagem;
+      msg.style.color = data.status === "Sucesso" ? "#0d283d" : "#f44336";
+
+      if (data.status === "Sucesso") {
+        document.getElementById("codigo").value = "";
+        document.getElementById("validade").value = "";
+        // Removido: document.getElementById("operador").selectedIndex = 0;
+      }
+    } catch {
+      msg.textContent = "Erro ao enviar dados.";
+      msg.style.color = "#f44336";
+    }
+
+    setTimeout(() => { msg.textContent = ""; }, 3000);
   }
-
-  setTimeout(() => { msg.textContent = ""; }, 3000);
-}
-</script>
-<footer>
-  &copy; <span id="ano"></span> Salomão Leme
-</footer>
-
-<script>
-  document.getElementById("ano").textContent = new Date().getFullYear();
 </script>
 
 </body>
