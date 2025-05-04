@@ -8,17 +8,6 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 16px; }
-    
-    footer{
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      text-align: center;
-      padding: 10px;
-      background-color: #f2f2f2;
-      font-size: 14px;
-    }
     body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -30,28 +19,9 @@
       justify-content: flex-start;
       min-height: 100vh;
     }
-    .logo-container { margin-bottom: 5px; width: 60%; max-width: 200px; }
-
-
-    .logo-container img { 
-      
-       width: 100%;
-       height: auto;
-       margin-bottom: 0; 
-      }
-
-    .container { 
-      display: flex;
-      flex-direction: column; /* ← Adicionado: alinha o conteúdo verticalmente */
-      align-items: center;
-      justify-content: flex-start;
-      width: 100%;
-      flex: 0; /* ← Alterado de 1 para 0 para evitar que o container ocupe espaço extra */
-      gap: 0.5rem; /* ← Adicionado: define um pequeno espaçamento entre logo e login */
-    
-    }
-
-
+    .logo-container { margin-bottom: 1rem; width: 60%; max-width: 200px; }
+    .logo-container img { width: 100%; height: auto; }
+    .container { display: flex; align-items: center; justify-content: center; width: 100%; flex: 1; }
     #login-container {
       background: #fff;
       padding: 1rem;
@@ -59,7 +29,6 @@
       box-shadow: 0 0 .5rem rgba(0,0,0,0.1);
       width: 90%;
       max-width: 320px;
-      margin-top: 0;
     }
     #login-container h2 { margin-bottom: .5rem; font-size: 1.25rem; }
     input {
@@ -98,29 +67,17 @@
   <div class="container">
     <div id="login-container">
       <h2>Login</h2>
-      <input type="text" id="username" name="user_nome" placeholder="Usuário"
-       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-      <input type="tel" id="password" name="user_senha" placeholder="Senha"
-       inputmode="numeric" pattern="\\d*" autocomplete="off"
-       style="-webkit-text-security: disc;" maxlength="6" required>
-
-  <button onclick="login()">Entrar</button>
-  <p id="error-msg" class="error"></p>
-</div>
-
+      <input type="text" id="username" placeholder="Usuário">
+      <input type="password" id="password" placeholder="Senha">
+      <button onclick="login()">Entrar</button>
+      <p id="error-msg" class="error"></p>
+    </div>
+  </div>
 
   <script>
-
-    const lojaLogada = sessionStorage.getItem("lojaLogada");
-    const usuarioLogado = sessionStorage.getItem("usuarioLogado");
-
-    if (lojaLogada && usuarioLogado) {
-     window.location.href = `index.html?loja=${lojaLogada}`;
-    };
-    
     const scriptUrls = {
       boituva: "https://script.google.com/macros/s/AKfycbyjL_Swh0igy3bBJnv6fghFgCv_aQ6JGIC-GdfydDG58e2DfuGMe8-4eLaZ4LCN_L4ajw/exec",
-      salto: "https://script.google.com/macros/s/AKfycbxPzATdhAen8cK_VAso7RsqeAX5Q1uLuByCD6UrrvVqWtgLtL43XWQ2aIQq2aBqlW7O/exec",
+      salto: "https://script.google.com/macros/s/AKfycbwTMg64mKqfmFz-7I4gohAFLIp9MPAosJYkLNtz99tJOFYhVtqL7ZbnC6f__mKPK5UT/exec",
       teste: "https://script.google.com/macros/s/AKfycbzDr1hY6gA8xSXcyH-Q6-z_H3CRh3YNotrDsyPEV94kTEhb1jNAdn4OgMqQjbt0BA1i/exec",
     };
 
@@ -150,7 +107,6 @@
 
         if (result.status === "ok") {
           sessionStorage.setItem("usuarioLogado", username);
-          sessionStorage.setItem("lojaLogada", loja);
           window.location.href = `index.html?loja=${loja}`;
         } else {
           errorMsg.innerText = "Usuário ou senha incorretos.";
@@ -161,13 +117,5 @@
       }
     }
   </script>
-    <footer>
-  &copy; <span id="ano"></span> Salomão Leme
-</footer>
-
-<script>
-  document.getElementById("ano").textContent = new Date().getFullYear();
-</script>
-
 </body>
 </html>
