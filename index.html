@@ -15,6 +15,18 @@
       font-family: Arial, sans-serif;
     }
 
+    footer {
+     position: fixed;
+     bottom: 0;
+     left: 0;
+     width: 100%;
+     text-align: center;
+     padding: 10px;
+     background-color: #0d283d;
+     font-size: 14px;
+     color: white;
+   }
+
     body {
       background-color: #0d283d;
       display: flex;
@@ -221,5 +233,11 @@
       setTimeout(() => { msg.textContent = ""; }, 3000);
     }
   </script>
+  <footer> &copy; <span id="ano"></span> Salomão Leme </footer>
+
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+</script>
+
 </body>
 </html>
