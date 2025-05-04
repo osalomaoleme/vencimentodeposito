@@ -232,6 +232,13 @@
     setTimeout(() => { msg.textContent = ""; }, 3000);
   }
 </script>
+<footer style="text-align: center; padding: 10px; background-color: #f2f2f2;">
+  &copy; <span id="ano"></span> Salomão Leme
+</footer>
+
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
