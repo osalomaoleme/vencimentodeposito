@@ -19,6 +19,18 @@
       justify-content: flex-start;
       min-height: 100vh;
     }
+  footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  background-color: #0d283d;
+  font-size: 14px;
+  color: white;
+  }
+    
     .logo-container { margin-bottom: 5px; width: 60%; max-width: 200px; }
     .logo-container img { width: 100%; height: auto; margin-bottom: 0; }
     .container {
@@ -136,5 +148,10 @@
       }
     }
   </script>
+  <footer> &copy; <span id="ano"></span> Salomão Leme </footer>
+
+<script>
+  document.getElementById("ano").textContent = new Date().getFullYear();
+</script>
 </body>
 </html>
