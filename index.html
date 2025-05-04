@@ -213,7 +213,8 @@
         return;
       }
 
-      const params = new URLSearchParams({ action: "salvarDados", operador, codigo, validade });
+      const params = new URLSearchParams({ action: "salvarDados", operador, codigo, validade, usuario: usuarioLogado });
+
 
       try {
         const res = await fetch(`${scriptUrl}?${params.toString()}`);
