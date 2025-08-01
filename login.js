@@ -21,6 +21,8 @@ async function login() {
   const password = document.getElementById("password").value.trim();
   const errorMsg = document.getElementById("error-msg");
 
+  console.log("Tentando login com:", username); // Debug
+
   if (!username || !password) {
     errorMsg.innerText = "Preencha todos os campos.";
     return;
@@ -33,20 +35,33 @@ async function login() {
   });
 
   try {
+    console.log("Fazendo requisição para:", `${scriptUrl}?${params.toString()}`); // Debug
+    
     const response = await fetch(`${scriptUrl}?${params.toString()}`);
     const result = await response.json();
 
+    console.log("Resposta do servidor:", result); // Debug
+
     if (result.status === "ok") {
+      console.log("Login bem-sucedido! Nome do operador:", result.nomeOperador); // Debug
+      
       // MUDANÇA: Armazenar tanto o login quanto o nome do operador
       sessionStorage.setItem("usuarioLogado", result.usuario);
       sessionStorage.setItem("nomeOperador", result.nomeOperador); // NOVO
       sessionStorage.setItem("planilhaId", planilhaId);
+      
+      console.log("Dados salvos no sessionStorage:"); // Debug
+      console.log("- usuarioLogado:", sessionStorage.getItem("usuarioLogado"));
+      console.log("- nomeOperador:", sessionStorage.getItem("nomeOperador"));
+      console.log("- planilhaId:", sessionStorage.getItem("planilhaId"));
+      
       window.location.href = `index.html?id=${planilhaId}`;
     } else {
+      console.log("Login falhou:", result.mensagem); // Debug
       errorMsg.innerText = result.mensagem || "Usuário ou senha incorretos.";
     }
   } catch (err) {
-    console.error("Erro:", err);
+    console.error("Erro na requisição:", err);
     errorMsg.innerText = "Erro na comunicação com o servidor.";
   }
 }
