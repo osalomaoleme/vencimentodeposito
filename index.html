@@ -53,6 +53,18 @@
       text-align: center;
     }
 
+    /* NOVO: Estilo para mostrar o operador logado */
+    .operador-info {
+      background-color: #f0f8ff;
+      border: 1px solid #0d283d;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #0d283d;
+      font-weight: bold;
+    }
+
     label {
       display: block;
       margin: 10px 0 5px;
@@ -122,8 +134,10 @@
   <div class="container">
     <h2 id="titulo">COLETA DE VALIDADE</h2>
 
-    <label for="operador">Operador:</label>
-    <select id="operador"><option value="">Carregando operadores...</option></select>
+    <!-- NOVO: Mostra o operador logado -->
+    <div class="operador-info">
+      <span>Operador: </span><span id="nome-operador">Carregando...</span>
+    </div>
 
     <label for="codigo">Código do Produto:</label>
     <input type="number" id="codigo" placeholder="Digite ou escaneie o código" />
@@ -149,10 +163,6 @@
   <script src="index.js"></script>
 
   <footer> &copy; <span id="ano"></span> Salomão Leme </footer>
-
-<script>
-  document.getElementById("ano").textContent = new Date().getFullYear();
-</script>
 
 </body>
 </html>
