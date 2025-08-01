@@ -60,14 +60,23 @@ async function enviarDados() {
   const operador = document.getElementById("operador").value;
   const codigo = document.getElementById("codigo").value.trim();
   const validade = document.getElementById("validade").value;
+  const quantidade = document.getElementById("quantidade").value;
   const msg = document.getElementById("mensagem");
   const usuario = sessionStorage.getItem("usuarioLogado");
 
   msg.textContent = "Enviando dados...";
   msg.style.color = "#0d283d";
 
-  if (!operador || !codigo || !validade) {
+  if (!operador || !codigo || !validade || !quantidade) {
     msg.textContent = "Preencha todos os campos.";
+    msg.style.color = "#f44336";
+    return;
+  }
+
+  // Validação da quantidade
+  const qtd = parseInt(quantidade);
+  if (qtd < 1 || qtd > 50) {
+    msg.textContent = "A quantidade deve ser entre 1 e 50.";
     msg.style.color = "#f44336";
     return;
   }
@@ -77,6 +86,7 @@ async function enviarDados() {
     operador,
     codigo,
     validade,
+    quantidade,
     usuario
   });
 
@@ -89,6 +99,7 @@ async function enviarDados() {
     if (data.status === "Sucesso") {
       document.getElementById("codigo").value = "";
       document.getElementById("validade").value = "";
+      document.getElementById("quantidade").value = "1"; // Reset para 1
     }
   } catch {
     msg.textContent = "Erro ao enviar dados.";
