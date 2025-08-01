@@ -3,6 +3,7 @@ const planilhaId = params.get("id");
 
 const scriptUrl = `https://script.google.com/macros/s/${planilhaId}/exec`;
 const usuarioLogado = sessionStorage.getItem("usuarioLogado");
+const nomeOperador = sessionStorage.getItem("nomeOperador");
 const idArmazenado = sessionStorage.getItem("planilhaId");
 
 if (!usuarioLogado || planilhaId !== idArmazenado) {
@@ -13,27 +14,13 @@ document.title = `Coleta de Validade`;
 
 let html5QrCode = null;
 
-window.onload = async () => {
-  const select = document.getElementById("operador");
-  try {
-    const res = await fetch(`${scriptUrl}?action=getOperadores`);
-    const operadores = await res.json();
-    select.innerHTML = `<option value="">Selecione o operador</option>`;
-    operadores.forEach(nome => {
-      const opt = document.createElement("option");
-      opt.value = nome;
-      opt.textContent = nome;
-      select.appendChild(opt);
-    });
-
-    const operadorSalvo = sessionStorage.getItem("operadorSelecionado");
-    if (operadorSalvo) select.value = operadorSalvo;
-
-    select.addEventListener("change", () => {
-      sessionStorage.setItem("operadorSelecionado", select.value);
-    });
-  } catch {
-    select.innerHTML = `<option value="">Erro ao carregar</option>`;
+window.onload = () => {
+  // MUDANÇA: Exibir o nome do operador em vez de carregar lista
+  const nomeOperadorElement = document.getElementById("nome-operador");
+  if (nomeOperador) {
+    nomeOperadorElement.textContent = nomeOperador;
+  } else {
+    nomeOperadorElement.textContent = "Erro ao carregar operador";
   }
 };
 
@@ -56,7 +43,6 @@ function fecharCamera() {
 }
 
 async function enviarDados() {
-  const operador = document.getElementById("operador").value;
   const codigo = document.getElementById("codigo").value.trim();
   const validade = document.getElementById("validade").value;
   const quantidade = document.getElementById("quantidade").value;
@@ -66,7 +52,7 @@ async function enviarDados() {
   msg.textContent = "Enviando dados...";
   msg.style.color = "#0d283d";
 
-  if (!operador || !codigo || !validade || !quantidade) {
+  if (!codigo || !validade || !quantidade) {
     msg.textContent = "Preencha todos os campos.";
     msg.style.color = "#f44336";
     return;
@@ -82,7 +68,6 @@ async function enviarDados() {
 
   const params = new URLSearchParams({
     action: "salvarDados",
-    operador,
     codigo,
     validade,
     quantidade,
