@@ -55,14 +55,12 @@
 
     /* NOVO: Estilo para mostrar o operador logado */
     .operador-info {
-      background-color: #f0f8ff;
-      border: 1px solid #0d283d;
+      border: 1px solid #ccc;
       border-radius: 5px;
       padding: 10px;
       margin-bottom: 20px;
-      text-align: center;
-      color: #0d283d;
-      font-weight: bold;
+      text-align: left;
+      color: #666;
     }
 
     label {
@@ -153,7 +151,7 @@
     <input type="date" id="validade" required />
 
     <label for="quantidade">Quantidade de Impressão:</label>
-    <input type="number" id="quantidade" min="1" max="50" value="1" placeholder="Quantas cópias deseja imprimir?" />
+    <input type="number" id="quantidade" min="1" max="50" placeholder="Digite quantidade de cópias" />
     <div class="quantidade-info">Escolha de 1 a 50 cópias para impressão</div>
 
     <button onclick="enviarDados()">Enviar</button>
