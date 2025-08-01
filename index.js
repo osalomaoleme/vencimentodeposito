@@ -15,12 +15,26 @@ document.title = `Coleta de Validade`;
 let html5QrCode = null;
 
 window.onload = () => {
+  console.log("Index.js carregado!"); // Debug
+  console.log("sessionStorage completo:", sessionStorage); // Debug
+  
   // MUDANÇA: Exibir o nome do operador em vez de carregar lista
   const nomeOperadorElement = document.getElementById("nome-operador");
+  const nomeOperador = sessionStorage.getItem("nomeOperador");
+  const usuarioLogado = sessionStorage.getItem("usuarioLogado");
+  
+  console.log("Dados do sessionStorage:"); // Debug
+  console.log("- nomeOperador:", nomeOperador);
+  console.log("- usuarioLogado:", usuarioLogado);
+  console.log("- planilhaId:", sessionStorage.getItem("planilhaId"));
+  
   if (nomeOperador) {
+    console.log("Exibindo nome do operador:", nomeOperador); // Debug
     nomeOperadorElement.textContent = nomeOperador;
   } else {
+    console.log("Nome do operador não encontrado no sessionStorage"); // Debug
     nomeOperadorElement.textContent = "Erro ao carregar operador";
+    nomeOperadorElement.style.color = "red";
   }
 };
 
