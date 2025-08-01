@@ -10,7 +10,6 @@ if (!usuarioLogado || planilhaId !== idArmazenado) {
 }
 
 document.title = `Coleta de Validade`;
-document.getElementById("nomeLoja").textContent = "App Validade";
 
 let html5QrCode = null;
 
