@@ -37,7 +37,9 @@ async function login() {
     const result = await response.json();
 
     if (result.status === "ok") {
+      // MUDANÇA: Armazenar tanto o login quanto o nome do operador
       sessionStorage.setItem("usuarioLogado", result.usuario);
+      sessionStorage.setItem("nomeOperador", result.nomeOperador); // NOVO
       sessionStorage.setItem("planilhaId", planilhaId);
       window.location.href = `index.html?id=${planilhaId}`;
     } else {
