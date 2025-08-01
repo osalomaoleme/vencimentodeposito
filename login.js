@@ -1,50 +1,50 @@
-const lojaLogada = sessionStorage.getItem("lojaLogada");
-  const usuarioLogado = sessionStorage.getItem("usuarioLogado");
+const params = new URLSearchParams(window.location.search);
+const planilhaId = params.get("id");
 
-  if (lojaLogada && usuarioLogado) {
-    window.location.href = `index.html?loja=${lojaLogada}`;
+if (!planilhaId) {
+  document.getElementById("login-container").innerHTML = "<p style='color:red'>ID da planilha não informado. Verifique o link.</p>";
+  throw new Error("ID da planilha não informado.");
+}
+
+const usuarioLogado = sessionStorage.getItem("usuarioLogado");
+const idArmazenado = sessionStorage.getItem("planilhaId");
+
+// Se já está logado com o mesmo ID, vai direto para o app
+if (usuarioLogado && idArmazenado === planilhaId) {
+  window.location.href = `index.html?id=${planilhaId}`;
+}
+
+const scriptUrl = `https://script.google.com/macros/s/${planilhaId}/exec`;
+
+async function login() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const errorMsg = document.getElementById("error-msg");
+
+  if (!username || !password) {
+    errorMsg.innerText = "Preencha todos os campos.";
+    return;
   }
 
-  const scriptUrls = {
-    boituva:"https://script.google.com/macros/s/AKfycbxyfItaH73oo2O85V9xZngK8zxrWLNppXd_q0zInPZUZPYanTVfd8ulc6YUns8kaXRq/exec",
-    salto:"https://script.google.com/macros/s/AKfycbxLvsXTvB4kkDcRn5CD10_aPZ9BeCyHVHTctJorUNJFgQIEXg-_NMEt-At7nPdZZL8m/exec",
-    cerquilho:"https://script.google.com/macros/s/AKfycbzMN9Dptlj6PheVauMTb5RYjBZJsQ6TJkak203lp7V04lXJou1Mo7Jhf7JtEC8XRqlA/exec",
-    portofeliz:"https://script.google.com/macros/s/AKfycbxJPDxO62pePdiURhl97P6zqtcpu7TQuAR0E5DRKR4eSO4ELetyX8hilN9IMyYbBbHCQg/exec",
-  };
+  const params = new URLSearchParams({
+    action: "login",
+    usuario: username,
+    senha: password
+  });
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const loja = urlParams.get("loja");
-  const scriptUrl = scriptUrls[loja];
+  try {
+    const response = await fetch(`${scriptUrl}?${params.toString()}`);
+    const result = await response.json();
 
-  if (!scriptUrl) {
-    document.getElementById("login-container").innerHTML = "<p style='color:red'>Loja inválida. Verifique o link.</p>";
-    throw new Error("Loja inválida ou não informada.");
-  }
-
-  async function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    const errorMsg = document.getElementById("error-msg");
-
-    const params = new URLSearchParams({
-      action: "login",
-      usuario: username,
-      senha: password
-    });
-
-    try {
-      const response = await fetch(`${scriptUrl}?${params.toString()}`);
-      const result = await response.json();
-
-      if (result.status === "ok") {
-        sessionStorage.setItem("usuarioLogado", result.usuario);
-        sessionStorage.setItem("lojaLogada", loja);
-        window.location.href = `index.html?loja=${loja}`;
-      } else {
-        errorMsg.innerText = "Usuário ou senha incorretos.";
-      }
-    } catch (err) {
-      console.error("Erro:", err);
-      errorMsg.innerText = "Erro na comunicação com o servidor.";
+    if (result.status === "ok") {
+      sessionStorage.setItem("usuarioLogado", result.usuario);
+      sessionStorage.setItem("planilhaId", planilhaId);
+      window.location.href = `index.html?id=${planilhaId}`;
+    } else {
+      errorMsg.innerText = result.mensagem || "Usuário ou senha incorretos.";
     }
+  } catch (err) {
+    console.error("Erro:", err);
+    errorMsg.innerText = "Erro na comunicação com o servidor.";
   }
+}
