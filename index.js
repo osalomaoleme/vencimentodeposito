@@ -10,13 +10,45 @@ if (!usuarioLogado || planilhaId !== idArmazenado) {
   window.location.href = `login.html?id=${planilhaId}`;
 }
 
-document.title = `Coleta de Validade`;
-
 let html5QrCode = null;
 
-window.onload = () => {
+// NOVA FUNÇÃO: Carregar título dinâmico da loja
+async function carregarTituloLoja() {
+  const id = planilhaId;
+  const cacheKey = `loja_nome_${id}`;
+  
+  let nomeLoja = localStorage.getItem(cacheKey);
+  
+  if (!nomeLoja) {
+    try {
+      console.log("Buscando nome da loja..."); // Debug
+      const res = await fetch(`${scriptUrl}?action=getNomeLoja`);
+      const data = await res.json();
+      nomeLoja = data.nome;
+      localStorage.setItem(cacheKey, nomeLoja);
+      console.log("Nome da loja obtido:", nomeLoja); // Debug
+    } catch (error) {
+      console.log("Erro ao buscar nome da loja:", error); // Debug
+      nomeLoja = "LOJA";
+    }
+  } else {
+    console.log("Nome da loja do cache:", nomeLoja); // Debug
+  }
+  
+  // Formar o título completo
+  const tituloCompleto = `COLETA DE VALIDADE - ${nomeLoja}`;
+  
+  // Atualizar o h2 e o title da página
+  document.getElementById("titulo").textContent = tituloCompleto;
+  document.title = tituloCompleto;
+}
+
+window.onload = async () => {
   console.log("Index.js carregado!"); // Debug
   console.log("sessionStorage completo:", sessionStorage); // Debug
+  
+  // NOVA LINHA: Carregar título dinâmico primeiro
+  await carregarTituloLoja();
   
   // MUDANÇA: Exibir o nome do operador em vez de carregar lista
   const nomeOperadorElement = document.getElementById("nome-operador");
