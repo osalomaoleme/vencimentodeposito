@@ -12,27 +12,19 @@ if (!usuarioLogado || planilhaId !== idArmazenado) {
 
 let html5QrCode = null;
 
-// NOVA FUNÇÃO: Carregar título dinâmico da loja
+// NOVA FUNÇÃO: Carregar título dinâmico da loja (SEM CACHE)
 async function carregarTituloLoja() {
-  const id = planilhaId;
-  const cacheKey = `loja_nome_${id}`;
+  let nomeLoja = "LOJA";
   
-  let nomeLoja = localStorage.getItem(cacheKey);
-  
-  if (!nomeLoja) {
-    try {
-      console.log("Buscando nome da loja..."); // Debug
-      const res = await fetch(`${scriptUrl}?action=getNomeLoja`);
-      const data = await res.json();
-      nomeLoja = data.nome;
-      localStorage.setItem(cacheKey, nomeLoja);
-      console.log("Nome da loja obtido:", nomeLoja); // Debug
-    } catch (error) {
-      console.log("Erro ao buscar nome da loja:", error); // Debug
-      nomeLoja = "LOJA";
-    }
-  } else {
-    console.log("Nome da loja do cache:", nomeLoja); // Debug
+  try {
+    console.log("Buscando nome da loja..."); // Debug
+    const res = await fetch(`${scriptUrl}?action=getNomeLoja`);
+    const data = await res.json();
+    nomeLoja = data.nome || "LOJA";
+    console.log("Nome da loja obtido:", nomeLoja); // Debug
+  } catch (error) {
+    console.log("Erro ao buscar nome da loja:", error); // Debug
+    nomeLoja = "LOJA";
   }
   
   // Formar o título completo
