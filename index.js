@@ -468,6 +468,20 @@ async function sincronizarRegistrosPendentes() {
   msg.textContent = "Sincronizando registros pendentes...";
   msg.style.color = "#2196F3";
   
+  // Atualizar botão de enviar para mostrar progresso
+  const btnEnviar = document.getElementById("btn-enviar-todos");
+  const progressBar = btnEnviar?.querySelector('.progress-bar');
+  const progressText = btnEnviar?.querySelector('.progress-text');
+  
+  if (btnEnviar && progressBar && progressText) {
+    // Inicializar barra de progresso
+    progressBar.style.width = '0%';
+    progressBar.style.transition = 'width 0.3s ease-in-out';
+    progressBar.style.backgroundColor = '#2196F3';
+    progressText.innerHTML = '<span class="spinner"></span> 0%';
+    btnEnviar.disabled = true;
+  }
+  
   try {
     // Obter registros pendentes do IndexedDB
     const registrosPendentes = await window.dbLocal.obterRegistrosPendentes();
@@ -475,6 +489,14 @@ async function sincronizarRegistrosPendentes() {
     if (registrosPendentes.length === 0) {
       msg.textContent = "Não há registros pendentes para sincronizar";
       setTimeout(() => { msg.textContent = ""; }, 3000);
+      
+      // Restaurar botão
+      if (btnEnviar && progressBar && progressText) {
+        progressBar.style.width = '0%';
+        progressText.innerHTML = '🚀 Enviar';
+        btnEnviar.disabled = false;
+      }
+      
       return;
     }
     
@@ -497,7 +519,19 @@ async function sincronizarRegistrosPendentes() {
         dados: JSON.stringify(dadosParaEnvio)
       });
       
+      // Atualizar barra para 30%
+      if (progressBar && progressText) {
+        progressBar.style.width = '30%';
+        progressText.innerHTML = '<span class="spinner"></span> 30%';
+      }
+      
       const data = await fazerRequisicao(`${scriptUrl}?${params.toString()}`);
+      
+      // Atualizar barra para 70%
+      if (progressBar && progressText) {
+        progressBar.style.width = '70%';
+        progressText.innerHTML = '<span class="spinner"></span> 70%';
+      }
       
       if (data.status === "Sucesso") {
         console.log(`Sincronização em lote bem-sucedida: ${data.mensagem}`);
@@ -509,6 +543,13 @@ async function sincronizarRegistrosPendentes() {
         // Atualizar contador
         atualizarContadorPendentes();
         
+        // Atualizar barra para 100%
+        if (progressBar && progressText) {
+          progressBar.style.width = '100%';
+          progressText.innerHTML = '✅ 100%';
+          progressBar.style.backgroundColor = '#4CAF50';
+        }
+        
         // Mostrar mensagem temporária de sucesso
         msg.textContent = `${registrosPendentes.length} registros sincronizados com sucesso!`;
         msg.style.color = "#4CAF50";
@@ -519,11 +560,27 @@ async function sincronizarRegistrosPendentes() {
       console.error("Erro no envio em lote, tentando envio individual:", batchError);
       msg.textContent = "Tentando sincronização individual...";
       
+      // Atualizar barra para indicar fallback
+      if (progressBar && progressText) {
+        progressBar.style.width = '30%';
+        progressBar.style.backgroundColor = '#FF9800';
+        progressText.innerHTML = '<span class="spinner"></span> Modo individual';
+      }
+      
       // Fallback: enviar registros individualmente
       let sucessos = 0;
       let falhas = 0;
       
-      for (const registro of registrosPendentes) {
+      for (let i = 0; i < registrosPendentes.length; i++) {
+        const registro = registrosPendentes[i];
+        const progresso = Math.round(((i + 1) / registrosPendentes.length) * 100);
+        
+        // Atualizar barra de progresso para cada registro
+        if (progressBar && progressText) {
+          progressBar.style.width = `${30 + (progresso * 0.7)}%`; // 30% a 100%
+          progressText.innerHTML = `<span class="spinner"></span> ${progresso}%`;
+        }
+        
         try {
           // Enviar para o Google Apps Script usando o método tradicional
           const params = new URLSearchParams({
@@ -554,6 +611,18 @@ async function sincronizarRegistrosPendentes() {
       // Atualizar contador após sincronização
       await atualizarContadorPendentes();
       
+      // Atualizar barra de progresso com resultado final
+      if (progressBar && progressText) {
+        progressBar.style.width = '100%';
+        if (sucessos > 0) {
+          progressBar.style.backgroundColor = sucessos === registrosPendentes.length ? '#4CAF50' : '#FF9800';
+          progressText.innerHTML = `✅ ${sucessos}/${registrosPendentes.length}`;
+        } else {
+          progressBar.style.backgroundColor = '#f44336';
+          progressText.innerHTML = '❌ Falha';
+        }
+      }
+      
       // Exibir mensagem de resultado do fallback
       if (sucessos > 0) {
         msg.textContent = `${sucessos} de ${registrosPendentes.length} registros sincronizados com sucesso (modo individual)!`;
@@ -565,10 +634,35 @@ async function sincronizarRegistrosPendentes() {
     }
     
     setTimeout(() => { msg.textContent = ""; }, 5000);
+    
+    // Restaurar botão após 3 segundos para mostrar o resultado final
+    setTimeout(() => {
+      if (btnEnviar && progressBar && progressText) {
+        progressBar.style.transition = 'width 0.5s ease-in-out, background-color 0.5s ease-in-out';
+        progressBar.style.width = '0%';
+        progressText.innerHTML = '🚀 Enviar';
+        btnEnviar.disabled = false;
+      }
+    }, 3000);
   } catch (error) {
     console.error("Erro ao sincronizar registros pendentes:", error);
     msg.textContent = "Erro ao sincronizar: " + error.message;
     msg.style.color = "#f44336";
+    
+    // Mostrar erro na barra de progresso
+    if (progressBar && progressText) {
+      progressBar.style.width = '100%';
+      progressBar.style.backgroundColor = '#f44336';
+      progressText.innerHTML = '❌ Erro';
+      
+      // Restaurar botão após 3 segundos
+      setTimeout(() => {
+        progressBar.style.width = '0%';
+        progressText.innerHTML = '🚀 Enviar';
+        btnEnviar.disabled = false;
+      }, 3000);
+    }
+    
     setTimeout(() => { msg.textContent = ""; }, 5000);
   }
 }
