@@ -16,6 +16,26 @@ let html5QrCode = null;
 let html5QrcodeScanner;
 let isScanning = false;
 let produtosColetados = []; // Array para armazenar produtos coletados
+
+// Função utilitária para fazer requisições que funciona em ambos os ambientes
+async function fazerRequisicao(url) {
+  const isGitHubPages = window.location.hostname.includes('github.io');
+  let requestUrl = url;
+  
+  if (isGitHubPages) {
+    requestUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    console.log("Usando proxy CORS para GitHub Pages:", requestUrl);
+  }
+  
+  const response = await fetch(requestUrl);
+  
+  if (isGitHubPages) {
+    const proxyResult = await response.json();
+    return JSON.parse(proxyResult.contents);
+  } else {
+    return await response.json();
+  }
+}
 // NOVA FUNÇÃO: Carregar título dinâmico da loja (SEM CACHE)
 async function carregarTituloLoja() {
   let nomeLoja = "LOJA";
@@ -27,8 +47,7 @@ async function carregarTituloLoja() {
       nomeLoja = "DELTA PLUS";
     } else {
       console.log("Buscando nome da loja...", scriptUrl); // Debug
-      const res = await fetch(`${scriptUrl}?action=getNomeLoja`);
-      const data = await res.json();
+      const data = await fazerRequisicao(`${scriptUrl}?action=getNomeLoja`);
       nomeLoja = data.nome || "DELTA PLUS";
       console.log("Nome da loja obtido:", nomeLoja); // Debug
     }
@@ -478,8 +497,7 @@ async function sincronizarRegistrosPendentes() {
         dados: JSON.stringify(dadosParaEnvio)
       });
       
-      const res = await fetch(`${scriptUrl}?${params.toString()}`);
-      const data = await res.json();
+      const data = await fazerRequisicao(`${scriptUrl}?${params.toString()}`);
       
       if (data.status === "Sucesso") {
         console.log(`Sincronização em lote bem-sucedida: ${data.mensagem}`);
@@ -516,8 +534,7 @@ async function sincronizarRegistrosPendentes() {
             usuario: registro.operador // Usar operador como usuario
           });
           
-          const res = await fetch(`${scriptUrl}?${params.toString()}`);
-          const data = await res.json();
+          const data = await fazerRequisicao(`${scriptUrl}?${params.toString()}`);
           
           if (data.status === "Sucesso") {
             // Remover registro do banco local após sincronização bem-sucedida
