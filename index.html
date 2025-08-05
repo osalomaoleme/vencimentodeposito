@@ -14,7 +14,6 @@
   <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
-<<<<<<< HEAD
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
     
     :root {
@@ -28,15 +27,10 @@
       --warning-color: #ff4444;
       --transition-speed: 0.3s;
     }
-
-=======
-    /* Seu CSS existente aqui... */
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-<<<<<<< HEAD
       font-family: 'Roboto', Arial, sans-serif;
       transition: all var(--transition-speed) ease;
     }
@@ -56,25 +50,6 @@
 
     body {
       background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-=======
-      font-family: Arial, sans-serif;
-    }
-
-    footer {
-     position: fixed;
-     bottom: 0;
-     left: 0;
-     width: 100%;
-     text-align: center;
-     padding: 10px;
-     background-color: #0d283d;
-     font-size: 14px;
-     color: white;
-   }
-
-    body {
-      background-color: #0d283d;
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -85,7 +60,6 @@
 
     .container {
       background: white;
-<<<<<<< HEAD
       padding: 25px;
       border-radius: 12px;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
@@ -132,34 +106,10 @@
       color: #666;
       background-color: #f9f9f9;
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-=======
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      width: 100%;
-      max-width: 400px;
-      margin-top: 40px;
-    }
-
-    h2 {
-      color: #0d283d;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .operador-info {
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 20px;
-      text-align: left;
-      color: #666;
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
     }
 
     label {
       display: block;
-<<<<<<< HEAD
       margin: 12px 0 5px;
       color: var(--primary-color);
       font-weight: 500;
@@ -170,17 +120,11 @@
     input:focus + label,
     select:focus + label {
       transform: translateY(-2px);
-=======
-      margin: 10px 0 5px;
-      color: #0d283d;
-      font-weight: bold;
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
     }
 
     input,
     select {
       width: 100%;
-<<<<<<< HEAD
       padding: 12px 15px;
       margin-bottom: 15px;
       border: 1px solid var(--light-gray);
@@ -194,19 +138,11 @@
     select:focus {
       border-color: var(--accent-color);
       box-shadow: 0 0 0 2px rgba(42, 100, 150, 0.2);
-=======
-      padding: 12px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
     }
 
     button {
       width: 100%;
       padding: 14px;
-<<<<<<< HEAD
       background-color: var(--primary-color);
       color: white;
       border: none;
@@ -526,46 +462,30 @@
         opacity: 0;
         transform: scale(40, 40);
       }
-=======
-      background-color: #0d283d;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
     }
 
     #mensagem {
       margin-top: 15px;
       font-weight: bold;
       text-align: center;
-<<<<<<< HEAD
       padding: 10px;
       border-radius: 8px;
       transition: all 0.3s;
-=======
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
     }
 
     #video-container {
       display: none;
       flex-direction: column;
       align-items: center;
-<<<<<<< HEAD
       margin-bottom: 20px;
       width: 100%;
-=======
       margin-bottom: 15px;
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
     }
 
     #reader {
       width: 100%;
       max-width: 400px;
       min-height: 200px;
-<<<<<<< HEAD
       border: 1px solid var(--light-gray);
       border-radius: 8px;
       overflow: hidden;
@@ -584,28 +504,12 @@
 
     .quantidade-info {
       font-size: 13px;
-=======
-      border: 1px solid #ccc;
-    }
-
-    #close-camera-btn {
-      background-color: #f44336;
-      color: white;
-      margin-top: 10px;
-    }
-
-    .quantidade-info {
-      font-size: 12px;
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
       color: #666;
       margin-top: -10px;
       margin-bottom: 15px;
       text-align: center;
-<<<<<<< HEAD
       font-style: italic;
     }
-
-
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-10px); }
@@ -627,31 +531,6 @@
       h2 {
         font-size: 20px;
       }
-=======
-    }
-
-    /* Status offline */
-    .offline-status {
-      background: #ff4444;
-      color: white;
-      padding: 10px;
-      text-align: center;
-      font-size: 14px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      display: none;
-    }
-
-    .online-status {
-      background: #44ff44;
-      color: #333;
-      padding: 10px;
-      text-align: center;
-      font-size: 14px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      display: none;
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
     }
   </style>
 </head>
@@ -659,18 +538,6 @@
 <body>
   <div class="container">
     <h2 id="titulo">COLETA DE VALIDADE</h2>
-
-<<<<<<< HEAD
-
-=======
-    <!-- Status de conexão -->
-    <div id="offline-status" class="offline-status">
-      📡 Sem conexão - Modo offline ativo
-    </div>
-    <div id="online-status" class="online-status">
-      ✅ Conexão restabelecida!
-    </div>
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
 
     <!-- Mostra o operador logado -->
     <div class="operador-info">
@@ -694,7 +561,6 @@
     <input type="number" id="quantidade" min="1" max="50" placeholder="Digite quantidade de cópias" />
     <div class="quantidade-info">Escolha de 1 a 50 cópias para impressão</div>
 
-<<<<<<< HEAD
     <button id="btn-coletar" onclick="enviarDados()">
       <div class="progress-bar" style="width: 0%"></div>
       <span class="progress-text">Coletar</span>
@@ -727,12 +593,6 @@
 
   <!-- Carregar scripts na ordem correta -->
   <script src="db.js"></script>
-=======
-    <button onclick="enviarDados()">Enviar</button>
-    <p id="mensagem"></p>
-  </div>
-
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
   <script src="index.js"></script>
 
   <footer> &copy; <span id="ano"></span> Salomão Leme </footer>
@@ -750,30 +610,6 @@
           });
       });
     }
-
-<<<<<<< HEAD
-=======
-    // Detectar status online/offline
-    function atualizarStatusConexao() {
-      const offlineStatus = document.getElementById('offline-status');
-      const onlineStatus = document.getElementById('online-status');
-      
-      if (navigator.onLine) {
-        offlineStatus.style.display = 'none';
-        onlineStatus.style.display = 'block';
-        setTimeout(() => {
-          onlineStatus.style.display = 'none';
-        }, 3000);
-      } else {
-        offlineStatus.style.display = 'block';
-        onlineStatus.style.display = 'none';
-      }
-    }
-
-    window.addEventListener('online', atualizarStatusConexao);
-    window.addEventListener('offline', atualizarStatusConexao);
-
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
     // Ano no footer
     document.getElementById("ano").textContent = new Date().getFullYear();
   </script>

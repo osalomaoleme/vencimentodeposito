@@ -12,14 +12,10 @@ if (!usuarioLogado || planilhaId !== idArmazenado) {
 
 let html5QrCode = null;
 
-<<<<<<< HEAD
 // Variáveis globais
 let html5QrcodeScanner;
 let isScanning = false;
 let produtosColetados = []; // Array para armazenar produtos coletados
-
-=======
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
 // NOVA FUNÇÃO: Carregar título dinâmico da loja (SEM CACHE)
 async function carregarTituloLoja() {
   let nomeLoja = "LOJA";
@@ -68,7 +64,6 @@ window.onload = async () => {
     nomeOperadorElement.textContent = "Erro ao carregar operador";
     nomeOperadorElement.style.color = "red";
   }
-<<<<<<< HEAD
   
   // Inicializar monitoramento de conexão
   atualizarStatusConexao();
@@ -389,10 +384,6 @@ function registrarSincronizacaoBackground() {
   }
 }
 
-=======
-};
-
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
 function iniciarLeitura() {
   document.getElementById("video-container").style.display = "flex";
   html5QrCode = new Html5Qrcode("reader");
@@ -411,7 +402,6 @@ function fecharCamera() {
   document.getElementById("video-container").style.display = "none";
 }
 
-<<<<<<< HEAD
 // Verificar se está online
 function estaOnline() {
   return navigator.onLine;
@@ -670,55 +660,4 @@ async function enviarDados() {
       msg.textContent = "";
     }, 3000);
   }
-=======
-async function enviarDados() {
-  const codigo = document.getElementById("codigo").value.trim();
-  const validade = document.getElementById("validade").value;
-  const quantidade = document.getElementById("quantidade").value;
-  const msg = document.getElementById("mensagem");
-  const usuario = sessionStorage.getItem("usuarioLogado");
-
-  msg.textContent = "Enviando dados...";
-  msg.style.color = "#0d283d";
-
-  if (!codigo || !validade || !quantidade) {
-    msg.textContent = "Preencha todos os campos.";
-    msg.style.color = "#f44336";
-    return;
-  }
-
-  // Validação da quantidade
-  const qtd = parseInt(quantidade);
-  if (qtd < 1 || qtd > 50) {
-    msg.textContent = "A quantidade deve ser entre 1 e 50.";
-    msg.style.color = "#f44336";
-    return;
-  }
-
-  const params = new URLSearchParams({
-    action: "salvarDados",
-    codigo,
-    validade,
-    quantidade,
-    usuario
-  });
-
-  try {
-    const res = await fetch(`${scriptUrl}?${params.toString()}`);
-    const data = await res.json();
-    msg.textContent = data.mensagem;
-    msg.style.color = data.status === "Sucesso" ? "#0d283d" : "#f44336";
-
-    if (data.status === "Sucesso") {
-      document.getElementById("codigo").value = "";
-      document.getElementById("validade").value = "";
-      document.getElementById("quantidade").value = "1"; // Reset para 1
-    }
-  } catch {
-    msg.textContent = "Erro ao enviar dados.";
-    msg.style.color = "#f44336";
-  }
-
-  setTimeout(() => { msg.textContent = ""; }, 3000);
->>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
 }

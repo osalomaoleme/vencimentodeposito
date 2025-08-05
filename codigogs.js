@@ -145,94 +145,149 @@ function gerarHashSenha(senha) {
 
 // Versão otimizada da função salvarDados
 function salvarDados(usuario, codigo, validade, quantidade) {
-  const planilha = obterPlanilha();
-  const abaControle = planilha.getSheetByName("CONTROLE");
-  const abaLoteImpressao = planilha.getSheetByName("LOTE PARA IMPRESSÃO");
-  const abaUsuarios = planilha.getSheetByName("USUARIOS");
+  try {
+    const planilha = obterPlanilha();
+    const abaControle = planilha.getSheetByName("CONTROLE");
+    const abaLoteImpressao = planilha.getSheetByName("LOTE PARA IMPRESSÃO");
+    const abaUsuarios = planilha.getSheetByName("USUARIOS");
 
-  if (!abaControle || !abaLoteImpressao || !abaUsuarios) {
-    return "Uma das abas ('CONTROLE', 'LOTE PARA IMPRESSÃO' ou 'USUARIOS') não foi encontrada.";
+    if (!abaControle || !abaLoteImpressao || !abaUsuarios) {
+      return "Uma das abas ('CONTROLE', 'LOTE PARA IMPRESSÃO' ou 'USUARIOS') não foi encontrada.";
+    }
+
+    // Buscar o nome do operador baseado no login
+    const dadosUsuarios = abaUsuarios.getRange("A2:B" + abaUsuarios.getLastRow()).getValues();
+    const usuarioEncontrado = dadosUsuarios.find(linha => 
+      String(linha[1]).trim() === String(usuario).trim()
+    );
+
+    if (!usuarioEncontrado) {
+      return "Usuário não encontrado na base de dados.";
+    }
+
+    const nomeOperador = String(usuarioEncontrado[0]).trim();
+
+    // Garantir que quantidade é um número válido
+    const qtdFinal = parseInt(quantidade) || 1;
+
+    // Obter data/hora atual
+    const agora = new Date();
+    const dataHoraFormatada = Utilities.formatDate(agora, Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
+
+    // Encontrar primeira linha vazia na aba CONTROLE
+    const dadosControle = abaControle.getRange("A3:A").getValues();
+    const primeiraVaziaControle = dadosControle.findIndex(row => !row[0]);
+    const novaLinhaControle = primeiraVaziaControle >= 0 ? primeiraVaziaControle + 3 : dadosControle.length + 3;
+    
+    // Inserir na aba CONTROLE - apenas nas colunas específicas, preservando B e D
+    console.log("Inserindo na aba CONTROLE, linha", novaLinhaControle);
+    abaControle.getRange(novaLinhaControle, 1).setValue(codigo);        // Coluna A: Código
+    abaControle.getRange(novaLinhaControle, 3).setValue(validade);      // Coluna C: Validade
+    abaControle.getRange(novaLinhaControle, 5).setValue(nomeOperador);  // Coluna E: Nome Operador
+    abaControle.getRange(novaLinhaControle, 6).setValue(usuario);       // Coluna F: Usuario (login)
+    abaControle.getRange(novaLinhaControle, 7).setValue(dataHoraFormatada); // Coluna G: Data/Hora
+
+    // Encontrar primeira linha vazia na aba LOTE PARA IMPRESSÃO
+    const dadosLote = abaLoteImpressao.getRange("A2:A").getValues();
+    const primeiraVaziaLote = dadosLote.findIndex(row => !row[0]);
+    const novaLinhaLote = primeiraVaziaLote >= 0 ? primeiraVaziaLote + 2 : dadosLote.length + 2;
+    
+    // Inserir na aba LOTE PARA IMPRESSÃO - apenas nas colunas específicas, preservando B
+    console.log("Inserindo na aba LOTE PARA IMPRESSÃO, linha", novaLinhaLote);
+    abaLoteImpressao.getRange(novaLinhaLote, 1).setValue(nomeOperador); // Coluna A: Nome Operador
+    abaLoteImpressao.getRange(novaLinhaLote, 3).setValue(codigo);       // Coluna C: Código
+    abaLoteImpressao.getRange(novaLinhaLote, 4).setValue(validade);     // Coluna D: Validade
+    abaLoteImpressao.getRange(novaLinhaLote, 5).setValue(qtdFinal);     // Coluna E: Quantidade
+
+    console.log("✅ Dados inseridos com sucesso nas duas abas");
+    return `✅Dados enviados com sucesso! Operador: ${nomeOperador}. Quantidade de ${qtdFinal} ${qtdFinal === 1 ? 'cópia registrada' : 'cópias registradas'} para impressão.✅`;
+    
+  } catch (error) {
+    console.error("Erro em salvarDados:", error);
+    return "Erro ao salvar dados: " + error.message;
   }
-
-  // Buscar o nome do operador baseado no login (usando cache se possível)
-  const dadosUsuarios = abaUsuarios.getRange("A2:B" + abaUsuarios.getLastRow()).getValues();
-  const usuarioEncontrado = dadosUsuarios.find(linha => 
-    String(linha[1]).trim() === String(usuario).trim()
-  );
-
-  if (!usuarioEncontrado) {
-    return "Usuário não encontrado na base de dados.";
-  }
-
-  const nomeOperador = String(usuarioEncontrado[0]).trim();
-
-  // Obter data/hora atual
-  const agora = new Date();
-  const dataHoraFormatada = Utilities.formatDate(agora, Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
-
-  // Preparar arrays de valores para inserção em lote
-  const dadosControle = abaControle.getRange("A3:A").getValues();
-  const primeiraVaziaControle = dadosControle.findIndex(row => !row[0]);
-  const novaLinhaControle = primeiraVaziaControle >= 0 ? primeiraVaziaControle + 3 : dadosControle.length + 3;
-  
-  // Inserir na aba CONTROLE usando setValues em vez de múltiplos setValue
-  const valoresControle = [
-    [codigo, "", validade, "", nomeOperador, usuario, dataHoraFormatada]
-  ];
-  abaControle.getRange(novaLinhaControle, 1, 1, 7).setValues(valoresControle);
-
-  // Inserir na aba LOTE PARA IMPRESSÃO usando setValues
-  const dadosLote = abaLoteImpressao.getRange("A2:A").getValues();
-  const primeiraVaziaLote = dadosLote.findIndex(row => !row[0]);
-  const novaLinhaLote = primeiraVaziaLote >= 0 ? primeiraVaziaLote + 2 : dadosLote.length + 2;
-  
-  const valoresLote = [
-    [nomeOperador, "", codigo, validade, quantidade]
-  ];
-  abaLoteImpressao.getRange(novaLinhaLote, 1, 1, 5).setValues(valoresLote);
-
-  return `✅Dados enviados com sucesso! Operador: ${nomeOperador}. Quantidade de ${quantidade} ${quantidade === 1 ? 'cópia registrada' : 'cópias registradas'} para impressão.✅`;
 }
 
 // Nova função para processar múltiplos registros
 function salvarMultiplosDados(dados) {
-  const planilha = obterPlanilha();
-  const abaControle = planilha.getSheetByName("CONTROLE");
-  const abaLoteImpressao = planilha.getSheetByName("LOTE PARA IMPRESSÃO");
-  
-  if (!abaControle || !abaLoteImpressao) {
-    return { status: "Erro", mensagem: "Uma das abas não foi encontrada." };
+  try {
+    const planilha = obterPlanilha();
+    const abaControle = planilha.getSheetByName("CONTROLE");
+    const abaLoteImpressao = planilha.getSheetByName("LOTE PARA IMPRESSÃO");
+    const abaUsuarios = planilha.getSheetByName("USUARIOS");
+    
+    if (!abaControle || !abaLoteImpressao || !abaUsuarios) {
+      return { status: "Erro", mensagem: "Uma das abas ('CONTROLE', 'LOTE PARA IMPRESSÃO' ou 'USUARIOS') não foi encontrada." };
+    }
+    
+    // Buscar dados dos usuários para mapear login -> nome
+    const dadosUsuarios = abaUsuarios.getRange("A2:B" + abaUsuarios.getLastRow()).getValues();
+    const mapaUsuarios = {};
+    dadosUsuarios.forEach(linha => {
+      if (linha[1] && linha[0]) {
+        mapaUsuarios[String(linha[1]).trim()] = String(linha[0]).trim();
+      }
+    });
+    
+    // Obter data/hora atual
+    const agora = new Date();
+    const dataHoraFormatada = Utilities.formatDate(agora, Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
+    
+    // Encontrar as primeiras linhas vazias
+    const dadosControle = abaControle.getRange("A3:A").getValues();
+    const primeiraVaziaControle = dadosControle.findIndex(row => !row[0]);
+    let novaLinhaControle = primeiraVaziaControle >= 0 ? primeiraVaziaControle + 3 : dadosControle.length + 3;
+    
+    const dadosLote = abaLoteImpressao.getRange("A2:A").getValues();
+    const primeiraVaziaLote = dadosLote.findIndex(row => !row[0]);
+    let novaLinhaLote = primeiraVaziaLote >= 0 ? primeiraVaziaLote + 2 : dadosLote.length + 2;
+    
+    // Processar cada registro individualmente para preservar colunas B e D
+    for (const registro of dados) {
+      // Garantir que temos o nome do operador correto
+      let nomeOperador = registro.nomeOperador;
+      if (!nomeOperador && registro.usuario) {
+        nomeOperador = mapaUsuarios[registro.usuario] || registro.usuario;
+      }
+      if (!nomeOperador) {
+        nomeOperador = "OPERADOR DESCONHECIDO";
+      }
+      
+      // Garantir que quantidade é um número válido
+      const quantidade = parseInt(registro.quantidade) || 1;
+      
+      // Inserir na aba CONTROLE - apenas nas colunas específicas, preservando B e D
+      console.log("Inserindo na aba CONTROLE, linha", novaLinhaControle, "- Código:", registro.codigo);
+      abaControle.getRange(novaLinhaControle, 1).setValue(registro.codigo);        // Coluna A: Código
+      abaControle.getRange(novaLinhaControle, 3).setValue(registro.validade);      // Coluna C: Validade
+      abaControle.getRange(novaLinhaControle, 5).setValue(nomeOperador);           // Coluna E: Nome Operador
+      abaControle.getRange(novaLinhaControle, 6).setValue(registro.usuario || nomeOperador); // Coluna F: Usuario (login)
+      abaControle.getRange(novaLinhaControle, 7).setValue(dataHoraFormatada);      // Coluna G: Data/Hora
+      
+      // Inserir na aba LOTE PARA IMPRESSÃO - apenas nas colunas específicas, preservando B
+      console.log("Inserindo na aba LOTE PARA IMPRESSÃO, linha", novaLinhaLote, "- Código:", registro.codigo);
+      abaLoteImpressao.getRange(novaLinhaLote, 1).setValue(nomeOperador);          // Coluna A: Nome Operador
+      abaLoteImpressao.getRange(novaLinhaLote, 3).setValue(registro.codigo);       // Coluna C: Código
+      abaLoteImpressao.getRange(novaLinhaLote, 4).setValue(registro.validade);     // Coluna D: Validade
+      abaLoteImpressao.getRange(novaLinhaLote, 5).setValue(quantidade);            // Coluna E: Quantidade
+      
+      // Incrementar as linhas para o próximo registro
+      novaLinhaControle++;
+      novaLinhaLote++;
+    }
+    
+    console.log("✅ Dados inseridos com sucesso nas duas abas");
+    
+    return { 
+      status: "Sucesso", 
+      mensagem: `✅ ${dados.length} registros enviados com sucesso para CONTROLE e LOTE PARA IMPRESSÃO!` 
+    };
+    
+  } catch (error) {
+    console.error("Erro em salvarMultiplosDados:", error);
+    return { 
+      status: "Erro", 
+      mensagem: "Erro ao salvar múltiplos dados: " + error.message 
+    };
   }
-  
-  // Preparar arrays para inserção em lote
-  const valoresControle = [];
-  const valoresLote = [];
-  const agora = new Date();
-  const dataHoraFormatada = Utilities.formatDate(agora, Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss");
-  
-  // Processar cada registro
-  for (const registro of dados) {
-    valoresControle.push([registro.codigo, "", registro.validade, "", registro.nomeOperador, registro.usuario, dataHoraFormatada]);
-    valoresLote.push([registro.nomeOperador, "", registro.codigo, registro.validade, registro.quantidade]);
-  }
-  
-  // Encontrar as primeiras linhas vazias
-  const dadosControle = abaControle.getRange("A3:A").getValues();
-  const primeiraVaziaControle = dadosControle.findIndex(row => !row[0]);
-  const novaLinhaControle = primeiraVaziaControle >= 0 ? primeiraVaziaControle + 3 : dadosControle.length + 3;
-  
-  const dadosLote = abaLoteImpressao.getRange("A2:A").getValues();
-  const primeiraVaziaLote = dadosLote.findIndex(row => !row[0]);
-  const novaLinhaLote = primeiraVaziaLote >= 0 ? primeiraVaziaLote + 2 : dadosLote.length + 2;
-  
-  // Inserir todos os valores de uma vez
-  if (valoresControle.length > 0) {
-    abaControle.getRange(novaLinhaControle, 1, valoresControle.length, 7).setValues(valoresControle);
-    abaLoteImpressao.getRange(novaLinhaLote, 1, valoresLote.length, 5).setValues(valoresLote);
-  }
-  
-  return { 
-    status: "Sucesso", 
-    mensagem: `✅ ${valoresControle.length} registros enviados com sucesso!` 
-  };
 }
