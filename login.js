@@ -45,12 +45,7 @@ async function login() {
   try {
     console.log("Fazendo requisição para:", `${scriptUrl}?${params.toString()}`); // Debug
     
-    const response = await fetch(`${scriptUrl}?${params.toString()}`, {
-      method: 'GET',
-      headers: {
-        'Cache-Control': 'no-cache'
-      }
-    });
+    const response = await fetch(`${scriptUrl}?${params.toString()}`);
     
     const result = await response.json();
 
