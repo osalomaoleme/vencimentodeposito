@@ -21,14 +21,20 @@ async function carregarTituloLoja() {
   let nomeLoja = "LOJA";
   
   try {
-    console.log("Buscando nome da loja..."); // Debug
-    const res = await fetch(`${scriptUrl}?action=getNomeLoja`);
-    const data = await res.json();
-    nomeLoja = data.nome || "LOJA";
-    console.log("Nome da loja obtido:", nomeLoja); // Debug
+    // Verificar se temos planilhaId válido
+    if (!planilhaId || planilhaId === 'null' || planilhaId === '') {
+      console.log("PlanilhaId não disponível, usando nome padrão"); // Debug
+      nomeLoja = "DELTA PLUS";
+    } else {
+      console.log("Buscando nome da loja...", scriptUrl); // Debug
+      const res = await fetch(`${scriptUrl}?action=getNomeLoja`);
+      const data = await res.json();
+      nomeLoja = data.nome || "DELTA PLUS";
+      console.log("Nome da loja obtido:", nomeLoja); // Debug
+    }
   } catch (error) {
     console.log("Erro ao buscar nome da loja:", error); // Debug
-    nomeLoja = "LOJA";
+    nomeLoja = "DELTA PLUS";
   }
   
   // Formar o título completo

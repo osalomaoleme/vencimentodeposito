@@ -20,13 +20,21 @@ async function login() {
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
   const errorMsg = document.getElementById("error-msg");
+  const loginBtn = document.querySelector("button");
 
   console.log("Tentando login com:", username); // Debug
+
+  // Limpar mensagens de erro anteriores
+  errorMsg.innerText = "";
 
   if (!username || !password) {
     errorMsg.innerText = "Preencha todos os campos.";
     return;
   }
+
+  // Mostrar estado de loading
+  loginBtn.disabled = true;
+  loginBtn.innerHTML = '<span class="spinner"></span>Entrando...';
 
   const params = new URLSearchParams({
     action: "login",
@@ -37,13 +45,23 @@ async function login() {
   try {
     console.log("Fazendo requisição para:", `${scriptUrl}?${params.toString()}`); // Debug
     
-    const response = await fetch(`${scriptUrl}?${params.toString()}`);
+    const response = await fetch(`${scriptUrl}?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
     const result = await response.json();
 
     console.log("Resposta do servidor:", result); // Debug
 
     if (result.status === "ok") {
       console.log("Login bem-sucedido! Nome do operador:", result.nomeOperador); // Debug
+      
+      // Mostrar sucesso
+      loginBtn.innerHTML = '✅ Sucesso! Redirecionando...';
+      loginBtn.style.background = '#4CAF50';
       
       // MUDANÇA: Armazenar tanto o login quanto o nome do operador
       sessionStorage.setItem("usuarioLogado", result.usuario);
@@ -55,13 +73,27 @@ async function login() {
       console.log("- nomeOperador:", sessionStorage.getItem("nomeOperador"));
       console.log("- planilhaId:", sessionStorage.getItem("planilhaId"));
       
-      window.location.href = `index.html?id=${planilhaId}`;
+      // Redirecionamento mais rápido
+      setTimeout(() => {
+        window.location.href = `index.html?id=${planilhaId}`;
+      }, 500);
+      
     } else {
       console.log("Login falhou:", result.mensagem); // Debug
       errorMsg.innerText = result.mensagem || "Usuário ou senha incorretos.";
+      
+      // Restaurar botão
+      loginBtn.disabled = false;
+      loginBtn.innerHTML = 'Entrar';
+      loginBtn.style.background = '#0D283D';
     }
   } catch (err) {
     console.error("Erro na requisição:", err);
-    errorMsg.innerText = "Erro na comunicação com o servidor.";
+    errorMsg.innerText = "Erro na comunicação com o servidor. Tente novamente.";
+    
+    // Restaurar botão
+    loginBtn.disabled = false;
+    loginBtn.innerHTML = 'Entrar';
+    loginBtn.style.background = '#0D283D';
   }
 }

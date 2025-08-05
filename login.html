@@ -66,7 +66,43 @@
       width: 100%;
       font-size: 1rem;
       cursor: pointer;
-      border-radius: .25rem;
+      border-radius: .5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #1a4d75;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(13, 40, 61, 0.3);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
     .error {
       color: red;
