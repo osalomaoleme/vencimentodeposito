@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Coleta de Validade</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0d283d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="./manifest.json">
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+    
+    :root {
+      --primary-color: #0d283d;
+      --secondary-color: #1a4d75;
+      --accent-color: #2a6496;
+      --text-color: #333;
+      --light-gray: #ccc;
+      --danger-color: #f44336;
+      --success-color: #44ff44;
+      --warning-color: #ff4444;
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Roboto', Arial, sans-serif;
+      transition: all var(--transition-speed) ease;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 12px;
+      background-color: var(--primary-color);
+      font-size: 14px;
+      color: white;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      padding-bottom: 60px;
+    }
+
+    .container {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 400px;
+      margin-top: 40px;
+      transform: translateY(0);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 1px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 3px;
+      background-color: var(--primary-color);
+      border-radius: 3px;
+    }
+
+    .operador-info {
+      border: 1px solid var(--light-gray);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 20px;
+      text-align: left;
+      color: #666;
+      background-color: #f9f9f9;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    label {
+      display: block;
+      margin: 12px 0 5px;
+      color: var(--primary-color);
+      font-weight: 500;
+      font-size: 15px;
+      transition: transform 0.2s;
+    }
+
+    input:focus + label,
+    select:focus + label {
+      transform: translateY(-2px);
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border: 1px solid var(--light-gray);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border 0.3s, box-shadow 0.3s;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(42, 100, 150, 0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estilos para botão com progresso - versão simplificada */
+    button.loading {
+      cursor: not-allowed;
+      background-color: var(--secondary-color);
+      position: relative;
+      color: transparent;
+    }
+
+    button.loading:hover {
+      transform: none;
+      background-color: var(--secondary-color);
+    }
+
+    .progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #45a049);
+      border-radius: 5px;
+      transition: width 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: bold;
+      z-index: 2;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Estilos para a lista de produtos coletados */
+    .produtos-coletados {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .produtos-coletados h3 {
+      margin: 0 0 15px 0;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .produto-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: white;
+      border-radius: 5px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .produto-info {
+      flex: 1;
+    }
+
+    .produto-codigo {
+      font-weight: bold;
+      color: #2196F3;
+    }
+
+    .produto-detalhes {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .btn-remover {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-remover:hover {
+      background: #d32f2f;
+    }
+
+    .btn-enviar-todos {
+      width: 100%;
+      background: #FF9800;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .btn-enviar-todos:hover {
+      background: #F57C00;
+    }
+
+    .btn-enviar-todos:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .contador-produtos {
+      text-align: center;
+      margin: 10px 0;
+      font-weight: bold;
+      color: #666;
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      20% {
+        transform: scale(25, 25);
+        opacity: 0.3;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(40, 40);
+      }
+    }
+
+    #mensagem {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    #video-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      min-height: 200px;
+      border: 1px solid var(--light-gray);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #close-camera-btn {
+      background-color: var(--danger-color);
+      color: white;
+      margin-top: 12px;
+    }
+
+    #close-camera-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    .quantidade-info {
+      font-size: 13px;
+      color: #666;
+      margin-top: -10px;
+      margin-bottom: 15px;
+      text-align: center;
+      font-style: italic;
+    }
+
+
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsividade melhorada */
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+        margin-top: 20px;
+      }
+      
+      input, select, button {
+        font-size: 15px;
+        padding: 12px;
+      }
+      
+      h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2 id="titulo">COLETA DE VALIDADE</h2>
+
+
+
+    <!-- Mostra o operador logado -->
+    <div class="operador-info">
+      <span>Operador: </span><span id="nome-operador">Carregando...</span>
+    </div>
+
+    <label for="codigo">Código do Produto:</label>
+    <input type="number" id="codigo" placeholder="Digite ou escaneie o código" />
+
+    <button onclick="iniciarLeitura()">Ler Código</button>
+
+    <div id="video-container">
+      <div id="reader"></div>
+      <button id="close-camera-btn" onclick="fecharCamera()">Fechar Câmera</button>
+    </div>
+
+    <label for="validade">Data de Validade:</label>
+    <input type="date" id="validade" required />
+
+    <label for="quantidade">Quantidade de Impressão:</label>
+    <input type="number" id="quantidade" min="1" max="50" placeholder="Digite quantidade de cópias" />
+    <div class="quantidade-info">Escolha de 1 a 50 cópias para impressão</div>
+
+    <button id="btn-coletar" onclick="enviarDados()">
+      <div class="progress-bar" style="width: 0%"></div>
+      <span class="progress-text">Coletar</span>
+    </button>
+    <p id="mensagem"></p>
+
+    <!-- Lista de produtos coletados -->
+    <div id="produtos-coletados-container" class="produtos-coletados" style="display: none;">
+      <h3>Produtos Coletados</h3>
+      <div class="contador-produtos">
+        <span id="contador-produtos">0 produtos coletados</span>
+      </div>
+      <div id="lista-produtos"></div>
+      <button id="btn-enviar-todos" class="btn-enviar-todos">
+        <div class="progress-bar" style="width: 0%"></div>
+        <span class="progress-text">Enviar Todos os Produtos</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Carregar scripts na ordem correta -->
+  <script src="db.js"></script>
+  <script src="index.js"></script>
+
+  <footer> &copy; <span id="ano"></span> Salomão Leme </footer>
+
+  <script>
+    // Registrar Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado com sucesso:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Falha ao registrar Service Worker:', error);
+          });
+      });
+    }
+
+    // Ano no footer
+    document.getElementById("ano").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
