@@ -12,11 +12,14 @@ if (!usuarioLogado || planilhaId !== idArmazenado) {
 
 let html5QrCode = null;
 
+<<<<<<< HEAD
 // Variáveis globais
 let html5QrcodeScanner;
 let isScanning = false;
 let produtosColetados = []; // Array para armazenar produtos coletados
 
+=======
+>>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
 // NOVA FUNÇÃO: Carregar título dinâmico da loja (SEM CACHE)
 async function carregarTituloLoja() {
   let nomeLoja = "LOJA";
@@ -65,6 +68,7 @@ window.onload = async () => {
     nomeOperadorElement.textContent = "Erro ao carregar operador";
     nomeOperadorElement.style.color = "red";
   }
+<<<<<<< HEAD
   
   // Inicializar monitoramento de conexão
   atualizarStatusConexao();
@@ -84,6 +88,15 @@ window.onload = async () => {
     console.log("✅ Event listener do botão 'Enviar Todos' adicionado");
   } else {
     console.error("❌ Botão 'Enviar Todos' não encontrado no DOM");
+  }
+  
+  // Event listener para o toggle da lista colapsável
+  const listaHeader = document.querySelector('.lista-header');
+  if (listaHeader) {
+    listaHeader.addEventListener('click', toggleLista);
+    console.log("✅ Event listener do toggle da lista adicionado");
+  } else {
+    console.log("ℹ️ Cabeçalho da lista não encontrado (será adicionado dinamicamente)");
   }
   
   // Verificar se todos os elementos necessários existem
@@ -133,6 +146,29 @@ function verificarElementosDOM() {
   }
 }
 
+// Função para toggle da lista colapsável
+function toggleLista() {
+  const listaContent = document.getElementById('lista-content');
+  const listaHeader = document.querySelector('.lista-header');
+  const toggleIcon = document.querySelector('.toggle-icon');
+  
+  if (listaContent && listaHeader && toggleIcon) {
+    const isCollapsed = listaContent.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+      // Expandir
+      listaContent.classList.remove('collapsed');
+      listaHeader.classList.remove('collapsed');
+      toggleIcon.textContent = '▼';
+    } else {
+      // Colapsar
+      listaContent.classList.add('collapsed');
+      listaHeader.classList.add('collapsed');
+      toggleIcon.textContent = '▶';
+    }
+  }
+}
+
 // Função para atualizar a lista visual de produtos coletados
 function atualizarListaProdutos() {
   console.log("🔍 Iniciando atualizarListaProdutos...");
@@ -178,7 +214,7 @@ function atualizarListaProdutos() {
   // Limpar lista atual
   listaProdutos.innerHTML = '';
   
-  // Adicionar cada produto à lista
+  // Adicionar cada produto à lista com novo visual
   produtosColetados.forEach((produto, index) => {
     const produtoDiv = document.createElement('div');
     produtoDiv.className = 'produto-item';
@@ -186,10 +222,12 @@ function atualizarListaProdutos() {
       <div class="produto-info">
         <div class="produto-codigo">${produto.codigo}</div>
         <div class="produto-detalhes">
-          Validade: ${produto.validade} | Qtd: ${produto.quantidade} | Op: ${produto.operador}
+          <span>📅 ${produto.validade}</span>
+          <span>📊 Qtd: ${produto.quantidade}</span>
+          <span>👤 ${produto.operador}</span>
         </div>
       </div>
-      <button class="btn-remover" onclick="removerProduto(${index})">Remover</button>
+      <button class="btn-remover" onclick="removerProduto(${index})">🗑️ Remover</button>
     `;
     listaProdutos.appendChild(produtoDiv);
   });
@@ -244,17 +282,34 @@ async function enviarTodosProdutos() {
     atualizarListaProdutos();
     console.log("🧹 Lista de produtos limpa da memória");
     
-    // Animação de progresso por produto
+    // Animação de progresso por produto com feedback melhorado
     for (let i = 0; i < totalProdutos; i++) {
       const progresso = Math.round(((i + 1) / totalProdutos) * 100);
       progressBar.style.width = progresso + '%';
-      progressText.innerHTML = `<span class="spinner"></span>Enviando ${i + 1}/${totalProdutos} (${progresso}%)`;
+      
+      // Feedback visual melhorado com produto atual
+      const produtoAtual = produtosParaEnviar[i];
+      progressText.innerHTML = `
+        <span class="spinner"></span>
+        Enviando ${i + 1}/${totalProdutos} (${progresso}%)
+        <br><small>📦 ${produtoAtual.codigo}</small>
+      `;
+      
+      // Adicionar efeito de pulsação na barra de progresso
+      progressBar.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.5)';
       
       // Salvar produto localmente usando a cópia
       await window.dbLocal.salvarRegistroLocal(produtosParaEnviar[i]);
       console.log(`✅ Produto ${i + 1}/${totalProdutos} salvo localmente: ${produtosParaEnviar[i].codigo}`);
       
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Feedback de sucesso temporário
+      progressText.innerHTML = `
+        <span style="color: #4CAF50;">✅</span>
+        Produto ${i + 1}/${totalProdutos} salvo (${progresso}%)
+        <br><small>📦 ${produtoAtual.codigo}</small>
+      `;
+      
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
     
     console.log("💾 Todos os produtos salvos localmente");
@@ -265,10 +320,28 @@ async function enviarTodosProdutos() {
     // Tentar sincronizar se estiver online
     if (estaOnline()) {
       console.log("🌐 Dispositivo online - tentando sincronizar...");
-      progressText.innerHTML = `<span class="spinner"></span>Sincronizando... 100%`;
+      progressText.innerHTML = `
+        <span class="spinner"></span>
+        Sincronizando com servidor... 100%
+        <br><small>🌐 Enviando para a nuvem</small>
+      `;
+      progressBar.style.boxShadow = '0 0 15px rgba(33, 150, 243, 0.7)';
       await sincronizarRegistrosPendentes();
+      
+      // Feedback de sincronização completa
+      progressText.innerHTML = `
+        <span style="color: #2196F3;">☁️</span>
+        Sincronização completa!
+        <br><small>✅ Dados enviados para a nuvem</small>
+      `;
     } else {
       console.log("📵 Dispositivo offline - dados salvos para sincronização posterior");
+      progressText.innerHTML = `
+        <span style="color: #FF9800;">📱</span>
+        Salvo localmente - 100%
+        <br><small>📡 Será sincronizado quando online</small>
+      `;
+      progressBar.style.boxShadow = '0 0 10px rgba(255, 152, 0, 0.5)';
     }
     
     msg.textContent = `✅ ${totalProdutos} produto${totalProdutos !== 1 ? 's' : ''} enviado${totalProdutos !== 1 ? 's' : ''} com sucesso!`;
@@ -279,11 +352,15 @@ async function enviarTodosProdutos() {
     msg.textContent = "Erro ao enviar produtos: " + error.message;
     msg.style.color = "#f44336";
   } finally {
-    // Restaurar botão
+    // Aguardar um pouco para mostrar o feedback final
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Restaurar botão e estilos
     btn.disabled = false;
     btn.classList.remove('loading');
     progressBar.style.width = '0%';
-    progressText.textContent = 'Enviar Todos os Produtos';
+    progressBar.style.boxShadow = 'none';
+    progressText.innerHTML = '📤 Enviar Todos os Produtos';
     
     // Limpar mensagem após 5 segundos
     setTimeout(() => {
@@ -312,6 +389,10 @@ function registrarSincronizacaoBackground() {
   }
 }
 
+=======
+};
+
+>>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
 function iniciarLeitura() {
   document.getElementById("video-container").style.display = "flex";
   html5QrCode = new Html5Qrcode("reader");
@@ -330,6 +411,7 @@ function fecharCamera() {
   document.getElementById("video-container").style.display = "none";
 }
 
+<<<<<<< HEAD
 // Verificar se está online
 function estaOnline() {
   return navigator.onLine;
@@ -588,4 +670,55 @@ async function enviarDados() {
       msg.textContent = "";
     }, 3000);
   }
+=======
+async function enviarDados() {
+  const codigo = document.getElementById("codigo").value.trim();
+  const validade = document.getElementById("validade").value;
+  const quantidade = document.getElementById("quantidade").value;
+  const msg = document.getElementById("mensagem");
+  const usuario = sessionStorage.getItem("usuarioLogado");
+
+  msg.textContent = "Enviando dados...";
+  msg.style.color = "#0d283d";
+
+  if (!codigo || !validade || !quantidade) {
+    msg.textContent = "Preencha todos os campos.";
+    msg.style.color = "#f44336";
+    return;
+  }
+
+  // Validação da quantidade
+  const qtd = parseInt(quantidade);
+  if (qtd < 1 || qtd > 50) {
+    msg.textContent = "A quantidade deve ser entre 1 e 50.";
+    msg.style.color = "#f44336";
+    return;
+  }
+
+  const params = new URLSearchParams({
+    action: "salvarDados",
+    codigo,
+    validade,
+    quantidade,
+    usuario
+  });
+
+  try {
+    const res = await fetch(`${scriptUrl}?${params.toString()}`);
+    const data = await res.json();
+    msg.textContent = data.mensagem;
+    msg.style.color = data.status === "Sucesso" ? "#0d283d" : "#f44336";
+
+    if (data.status === "Sucesso") {
+      document.getElementById("codigo").value = "";
+      document.getElementById("validade").value = "";
+      document.getElementById("quantidade").value = "1"; // Reset para 1
+    }
+  } catch {
+    msg.textContent = "Erro ao enviar dados.";
+    msg.style.color = "#f44336";
+  }
+
+  setTimeout(() => { msg.textContent = ""; }, 3000);
+>>>>>>> 4ae182ce759ee18229eeb59b0274ce89de057caa
 }
