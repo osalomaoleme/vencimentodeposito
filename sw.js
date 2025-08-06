@@ -1,13 +1,12 @@
-const CACHE_NAME = "validade-cache-v3";
-const API_CACHE_NAME = "validade-api-cache-v1";
+const CACHE_NAME = "validade-cache-v4";
+const API_CACHE_NAME = "validade-api-cache-v2";
 
 const urlsToCache = [
   "./",
   "./index.html",
   "./login.html",
-  "./index.js",
-  "./login.js",
-  "./db.js",
+  "./index.js?v=1.2",
+  "./login.js?v=1.2",
   "./manifest.json",
   "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js",
   "./logodeltap.png"
@@ -39,7 +38,7 @@ self.addEventListener("activate", event => {
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
+          if (cacheName !== CACHE_NAME && cacheName !== API_CACHE_NAME) {
             console.log("Removendo cache antigo:", cacheName);
             return caches.delete(cacheName);
           }
@@ -47,7 +46,16 @@ self.addEventListener("activate", event => {
       );
     }).then(() => {
       console.log("Service Worker ativado!");
-      return self.clients.claim();
+      // Forçar atualização de todos os clientes
+      return self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'cache-updated',
+            message: 'Cache atualizado, recarregue a página se necessário'
+          });
+        });
+        return self.clients.claim();
+      });
     })
   );
 });
