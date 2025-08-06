@@ -36,6 +36,7 @@ async function fazerRequisicao(url) {
     return await response.json();
   }
 }
+
 // NOVA FUNÇÃO: Carregar título dinâmico da loja (SEM CACHE)
 async function carregarTituloLoja() {
   let nomeLoja = "LOJA";
@@ -94,11 +95,7 @@ window.onload = async () => {
   atualizarStatusConexao();
   
   // Adicionar event listeners para monitorar status de conexão
-  window.addEventListener('online', () => {
-    atualizarStatusConexao();
-    // Registrar sincronização em background quando ficar online
-    registrarSincronizacaoBackground();
-  });
+  window.addEventListener('online', atualizarStatusConexao);
   window.addEventListener('offline', atualizarStatusConexao);
   
   // Event listener para o botão de enviar todos os produtos
@@ -124,22 +121,6 @@ window.onload = async () => {
   
   // Log de inicialização
   console.log("🚀 Aplicativo inicializado com sucesso");
-  
-  // Escutar mensagens do Service Worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('message', event => {
-      if (event.data && event.data.type === 'sync-registros') {
-        console.log('Mensagem recebida do Service Worker:', event.data.message);
-        sincronizarRegistrosPendentes();
-      }
-    });
-    
-    // Verificar se há registros pendentes e registrar sincronização
-    const contador = await window.dbLocal.contarRegistrosPendentes();
-    if (contador > 0 && estaOnline()) {
-      registrarSincronizacaoBackground();
-    }
-  }
 }
 
 // Função para verificar se todos os elementos DOM necessários existem
@@ -266,146 +247,103 @@ function removerProduto(index) {
 
 // Função para enviar todos os produtos coletados
 async function enviarTodosProdutos() {
-  console.log("🚀 Iniciando envio de todos os produtos coletados");
-  
   if (produtosColetados.length === 0) {
-    const msg = document.getElementById("mensagem");
-    msg.textContent = "Nenhum produto coletado para enviar!";
-    msg.style.color = "#ff9800";
-    setTimeout(() => { msg.textContent = ""; }, 3000);
+    document.getElementById("mensagem").textContent = "Nenhum produto coletado para enviar.";
+    document.getElementById("mensagem").style.color = "#ff9800";
     return;
   }
-  
+
   const btn = document.getElementById("btn-enviar-todos");
   const progressBar = btn?.querySelector('.progress-bar');
   const progressText = btn?.querySelector('.progress-text');
   const msg = document.getElementById("mensagem");
-  
+
   // Verificar se os elementos existem
   if (!btn || !progressBar || !progressText) {
     console.error("❌ Elementos do botão de envio não encontrados no DOM");
     return;
   }
-  
-  // Criar uma cópia dos produtos para envio (evita problemas de memória)
-  const produtosParaEnviar = [...produtosColetados];
-  
+
   // Desabilitar botão e iniciar animação
   btn.disabled = true;
-  btn.classList.add('loading');
-  
+  progressBar.style.width = '0%';
+  progressBar.style.transition = 'width 0.3s ease-in-out';
+  progressBar.style.backgroundColor = '#2196F3';
+  progressText.innerHTML = '<span class="spinner"></span> 0%';
+
   try {
-    const totalProdutos = produtosParaEnviar.length;
-    
-    // Limpar lista de produtos coletados IMEDIATAMENTE para evitar problemas de memória
-    produtosColetados = [];
-    atualizarListaProdutos();
-    console.log("🧹 Lista de produtos limpa da memória");
-    
-    // Animação de progresso por produto com feedback melhorado
-    for (let i = 0; i < totalProdutos; i++) {
-      const progresso = Math.round(((i + 1) / totalProdutos) * 100);
-      progressBar.style.width = progresso + '%';
-      
-      // Feedback visual melhorado com produto atual
-      const produtoAtual = produtosParaEnviar[i];
-      progressText.innerHTML = `
-        <span class="spinner"></span>
-        Enviando ${i + 1}/${totalProdutos} (${progresso}%)
-        <br><small>📦 ${produtoAtual.codigo}</small>
-      `;
-      
-      // Adicionar efeito de pulsação na barra de progresso
-      progressBar.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.5)';
-      
-      // Salvar produto localmente usando a cópia
-      await window.dbLocal.salvarRegistroLocal(produtosParaEnviar[i]);
-      console.log(`✅ Produto ${i + 1}/${totalProdutos} salvo localmente: ${produtosParaEnviar[i].codigo}`);
-      
-      // Feedback de sucesso temporário
-      progressText.innerHTML = `
-        <span style="color: #4CAF50;">✅</span>
-        Produto ${i + 1}/${totalProdutos} salvo (${progresso}%)
-        <br><small>📦 ${produtoAtual.codigo}</small>
-      `;
-      
-      await new Promise(resolve => setTimeout(resolve, 300));
+    // Verificar conexão
+    if (!navigator.onLine) {
+      throw new Error("Sem conexão com a internet. Verifique sua conexão e tente novamente.");
     }
-    
-    console.log("💾 Todos os produtos salvos localmente");
-    
-    // Atualizar contador de pendentes
-    await atualizarContadorPendentes();
-    
-    // Tentar sincronizar se estiver online
-    if (estaOnline()) {
-      console.log("🌐 Dispositivo online - tentando sincronizar...");
-      progressText.innerHTML = `
-        <span class="spinner"></span>
-        Sincronizando com servidor... 100%
-        <br><small>🌐 Enviando para a nuvem</small>
-      `;
-      progressBar.style.boxShadow = '0 0 15px rgba(33, 150, 243, 0.7)';
-      await sincronizarRegistrosPendentes();
-      
-      // Feedback de sincronização completa
-      progressText.innerHTML = `
-        <span style="color: #2196F3;">☁️</span>
-        Sincronização completa!
-        <br><small>✅ Dados enviados para a nuvem</small>
-      `;
+
+    msg.textContent = "Enviando produtos...";
+    msg.style.color = "#2196F3";
+
+    // Preparar dados para envio em lote
+    const dadosParaEnvio = produtosColetados.map(produto => ({
+      codigo: produto.codigo,
+      validade: produto.validade,
+      quantidade: produto.quantidade,
+      usuario: sessionStorage.getItem("usuarioLogado") || "usuario",
+      nomeOperador: produto.operador
+    }));
+
+    // Atualizar barra para 30%
+    progressBar.style.width = '30%';
+    progressText.innerHTML = '<span class="spinner"></span> 30%';
+
+    // Tentar enviar dados em lote para o servidor
+    const params = new URLSearchParams({
+      action: "salvarMultiplosDados",
+      dados: JSON.stringify(dadosParaEnvio)
+    });
+
+    // Atualizar barra para 70%
+    progressBar.style.width = '70%';
+    progressText.innerHTML = '<span class="spinner"></span> 70%';
+
+    const data = await fazerRequisicao(`${scriptUrl}?${params.toString()}`);
+
+    if (data.status === "Sucesso") {
+      // Atualizar barra para 100%
+      progressBar.style.width = '100%';
+      progressText.innerHTML = '✅ 100%';
+      progressBar.style.backgroundColor = '#4CAF50';
+
+      msg.textContent = `${produtosColetados.length} produtos enviados com sucesso!`;
+      msg.style.color = "#4CAF50";
+
+      // Limpar lista de produtos coletados
+      produtosColetados = [];
+      atualizarListaProdutos();
+
     } else {
-      console.log("📵 Dispositivo offline - dados salvos para sincronização posterior");
-      progressText.innerHTML = `
-        <span style="color: #FF9800;">📱</span>
-        Salvo localmente - 100%
-        <br><small>📡 Será sincronizado quando online</small>
-      `;
-      progressBar.style.boxShadow = '0 0 10px rgba(255, 152, 0, 0.5)';
+      throw new Error(data.mensagem || "Erro desconhecido no envio");
     }
-    
-    msg.textContent = `✅ ${totalProdutos} produto${totalProdutos !== 1 ? 's' : ''} enviado${totalProdutos !== 1 ? 's' : ''} com sucesso!`;
-    msg.style.color = "#4CAF50";
-    
+
   } catch (error) {
-    console.error("❌ Erro ao enviar produtos:", error);
-    msg.textContent = "Erro ao enviar produtos: " + error.message;
+    console.error("Erro ao enviar produtos:", error);
+    msg.textContent = "Erro ao enviar: " + error.message;
     msg.style.color = "#f44336";
+
+    // Mostrar erro na barra de progresso
+    progressBar.style.width = '100%';
+    progressBar.style.backgroundColor = '#f44336';
+    progressText.innerHTML = '❌ Erro';
   } finally {
-    // Aguardar um pouco para mostrar o feedback final
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Restaurar botão e estilos
-    btn.disabled = false;
-    btn.classList.remove('loading');
-    progressBar.style.width = '0%';
-    progressBar.style.boxShadow = 'none';
-    progressText.innerHTML = '📤 Enviar Todos os Produtos';
-    
+    // Restaurar botão após 3 segundos
+    setTimeout(() => {
+      btn.disabled = false;
+      progressBar.style.width = '0%';
+      progressText.innerHTML = '🚀 Enviar';
+      progressBar.style.backgroundColor = '#2196F3';
+    }, 3000);
+
     // Limpar mensagem após 5 segundos
     setTimeout(() => {
       msg.textContent = "";
     }, 5000);
-  }
-};
-
-// Registrar sincronização em background
-function registrarSincronizacaoBackground() {
-  if ('serviceWorker' in navigator && 'SyncManager' in window) {
-    navigator.serviceWorker.ready.then(registration => {
-      // Enviar mensagem para o Service Worker registrar a sincronização
-      navigator.serviceWorker.controller.postMessage({
-        type: 'register-sync'
-      });
-    }).catch(error => {
-      console.error('Erro ao registrar sincronização em background:', error);
-    });
-  } else {
-    console.log('Background Sync não é suportado neste navegador');
-    // Tentar sincronizar imediatamente se o Background Sync não for suportado
-    if (estaOnline()) {
-      sincronizarRegistrosPendentes();
-    }
   }
 }
 
@@ -436,234 +374,8 @@ function estaOnline() {
 function atualizarStatusConexao() {
   if (estaOnline()) {
     console.log('📶 Status de conexão: Online');
-    
-    // Tentar sincronizar registros pendentes quando ficar online
-    sincronizarRegistrosPendentes();
   } else {
     console.log('📵 Status de conexão: Offline');
-  }
-  
-  // Atualizar contador de pendentes
-  atualizarContadorPendentes();
-}
-
-// Atualizar contador de registros pendentes (apenas console)
-async function atualizarContadorPendentes() {
-  try {
-    const contador = await window.dbLocal.contarRegistrosPendentes();
-    console.log(`📊 Registros pendentes: ${contador}`);
-  } catch (error) {
-    console.error("❌ Erro ao atualizar contador:", error);
-  }
-}
-
-// Sincronizar registros pendentes com o servidor
-async function sincronizarRegistrosPendentes() {
-  if (!estaOnline()) {
-    console.log("Não é possível sincronizar: dispositivo offline");
-    return;
-  }
-  
-  const msg = document.getElementById("mensagem");
-  msg.textContent = "Sincronizando registros pendentes...";
-  msg.style.color = "#2196F3";
-  
-  // Atualizar botão de enviar para mostrar progresso
-  const btnEnviar = document.getElementById("btn-enviar-todos");
-  const progressBar = btnEnviar?.querySelector('.progress-bar');
-  const progressText = btnEnviar?.querySelector('.progress-text');
-  
-  if (btnEnviar && progressBar && progressText) {
-    // Inicializar barra de progresso
-    progressBar.style.width = '0%';
-    progressBar.style.transition = 'width 0.3s ease-in-out';
-    progressBar.style.backgroundColor = '#2196F3';
-    progressText.innerHTML = '<span class="spinner"></span> 0%';
-    btnEnviar.disabled = true;
-  }
-  
-  try {
-    // Obter registros pendentes do IndexedDB
-    const registrosPendentes = await window.dbLocal.obterRegistrosPendentes();
-    
-    if (registrosPendentes.length === 0) {
-      msg.textContent = "Não há registros pendentes para sincronizar";
-      setTimeout(() => { msg.textContent = ""; }, 3000);
-      
-      // Restaurar botão
-      if (btnEnviar && progressBar && progressText) {
-        progressBar.style.width = '0%';
-        progressText.innerHTML = '🚀 Enviar';
-        btnEnviar.disabled = false;
-      }
-      
-      return;
-    }
-    
-    console.log(`Sincronizando ${registrosPendentes.length} registros pendentes...`);
-    
-    // Preparar dados para envio em lote
-    const dadosParaEnvio = registrosPendentes.map(registro => ({
-      codigo: registro.codigo,
-      validade: registro.validade,
-      quantidade: registro.quantidade,
-      usuario: registro.operador, // Usar operador como usuario
-      nomeOperador: registro.operador, // Usar operador como nomeOperador
-      id: registro.id // Manter o ID para referência
-    }));
-    
-    try {
-      // Tentar enviar dados em lote para o servidor
-      const params = new URLSearchParams({
-        action: "salvarMultiplosDados",
-        dados: JSON.stringify(dadosParaEnvio)
-      });
-      
-      // Atualizar barra para 30%
-      if (progressBar && progressText) {
-        progressBar.style.width = '30%';
-        progressText.innerHTML = '<span class="spinner"></span> 30%';
-      }
-      
-      const data = await fazerRequisicao(`${scriptUrl}?${params.toString()}`);
-      
-      // Atualizar barra para 70%
-      if (progressBar && progressText) {
-        progressBar.style.width = '70%';
-        progressText.innerHTML = '<span class="spinner"></span> 70%';
-      }
-      
-      if (data.status === "Sucesso") {
-        console.log(`Sincronização em lote bem-sucedida: ${data.mensagem}`);
-        
-        // Remover registros sincronizados do IndexedDB
-        const ids = registrosPendentes.map(registro => registro.id);
-        await window.dbLocal.removerRegistrosPendentes(ids);
-        
-        // Atualizar contador
-        atualizarContadorPendentes();
-        
-        // Atualizar barra para 100%
-        if (progressBar && progressText) {
-          progressBar.style.width = '100%';
-          progressText.innerHTML = '✅ 100%';
-          progressBar.style.backgroundColor = '#4CAF50';
-        }
-        
-        // Mostrar mensagem temporária de sucesso
-        msg.textContent = `${registrosPendentes.length} registros sincronizados com sucesso!`;
-        msg.style.color = "#4CAF50";
-      } else {
-        throw new Error(data.mensagem || "Erro desconhecido no envio em lote");
-      }
-    } catch (batchError) {
-      console.error("Erro no envio em lote, tentando envio individual:", batchError);
-      msg.textContent = "Tentando sincronização individual...";
-      
-      // Atualizar barra para indicar fallback
-      if (progressBar && progressText) {
-        progressBar.style.width = '30%';
-        progressBar.style.backgroundColor = '#FF9800';
-        progressText.innerHTML = '<span class="spinner"></span> Modo individual';
-      }
-      
-      // Fallback: enviar registros individualmente
-      let sucessos = 0;
-      let falhas = 0;
-      
-      for (let i = 0; i < registrosPendentes.length; i++) {
-        const registro = registrosPendentes[i];
-        const progresso = Math.round(((i + 1) / registrosPendentes.length) * 100);
-        
-        // Atualizar barra de progresso para cada registro
-        if (progressBar && progressText) {
-          progressBar.style.width = `${30 + (progresso * 0.7)}%`; // 30% a 100%
-          progressText.innerHTML = `<span class="spinner"></span> ${progresso}%`;
-        }
-        
-        try {
-          // Enviar para o Google Apps Script usando o método tradicional
-          const params = new URLSearchParams({
-            action: "salvarDados",
-            codigo: registro.codigo,
-            validade: registro.validade,
-            quantidade: registro.quantidade,
-            usuario: registro.operador // Usar operador como usuario
-          });
-          
-          const data = await fazerRequisicao(`${scriptUrl}?${params.toString()}`);
-          
-          if (data.status === "Sucesso") {
-            // Remover registro do banco local após sincronização bem-sucedida
-            await window.dbLocal.removerRegistrosPendentes([registro.id]);
-            sucessos++;
-            console.log(`✅ Registro ${registro.codigo} sincronizado com sucesso`);
-          } else {
-            falhas++;
-            console.error(`❌ Falha ao sincronizar registro ${registro.codigo}:`, data.mensagem);
-          }
-        } catch (err) {
-          falhas++;
-          console.error(`❌ Erro ao sincronizar registro ${registro.codigo}:`, err);
-        }
-      }
-      
-      // Atualizar contador após sincronização
-      await atualizarContadorPendentes();
-      
-      // Atualizar barra de progresso com resultado final
-      if (progressBar && progressText) {
-        progressBar.style.width = '100%';
-        if (sucessos > 0) {
-          progressBar.style.backgroundColor = sucessos === registrosPendentes.length ? '#4CAF50' : '#FF9800';
-          progressText.innerHTML = `✅ ${sucessos}/${registrosPendentes.length}`;
-        } else {
-          progressBar.style.backgroundColor = '#f44336';
-          progressText.innerHTML = '❌ Falha';
-        }
-      }
-      
-      // Exibir mensagem de resultado do fallback
-      if (sucessos > 0) {
-        msg.textContent = `${sucessos} de ${registrosPendentes.length} registros sincronizados com sucesso (modo individual)!`;
-        msg.style.color = "#4CAF50";
-      } else {
-        msg.textContent = "Falha ao sincronizar registros. Tente novamente mais tarde.";
-        msg.style.color = "#f44336";
-      }
-    }
-    
-    setTimeout(() => { msg.textContent = ""; }, 5000);
-    
-    // Restaurar botão após 3 segundos para mostrar o resultado final
-    setTimeout(() => {
-      if (btnEnviar && progressBar && progressText) {
-        progressBar.style.transition = 'width 0.5s ease-in-out, background-color 0.5s ease-in-out';
-        progressBar.style.width = '0%';
-        progressText.innerHTML = '🚀 Enviar';
-        btnEnviar.disabled = false;
-      }
-    }, 3000);
-  } catch (error) {
-    console.error("Erro ao sincronizar registros pendentes:", error);
-    msg.textContent = "Erro ao sincronizar: " + error.message;
-    msg.style.color = "#f44336";
-    
-    // Mostrar erro na barra de progresso
-    if (progressBar && progressText) {
-      progressBar.style.width = '100%';
-      progressBar.style.backgroundColor = '#f44336';
-      progressText.innerHTML = '❌ Erro';
-      
-      // Restaurar botão após 3 segundos
-      setTimeout(() => {
-        progressBar.style.width = '0%';
-        progressText.innerHTML = '🚀 Enviar';
-        btnEnviar.disabled = false;
-      }, 3000);
-    }
-    
-    setTimeout(() => { msg.textContent = ""; }, 5000);
   }
 }
 
