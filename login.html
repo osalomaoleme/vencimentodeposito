@@ -6,78 +6,315 @@
   <title>Login</title>
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+    
+    :root {
+      --primary-color: #0d283d;
+      --secondary-color: #1a4d75;
+      --accent-color: #2a6496;
+      --text-color: #333;
+      --light-gray: #ccc;
+      --danger-color: #f44336;
+      --success-color: #44ff44;
+      --warning-color: #ff4444;
+      --transition-speed: 0.3s;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: 'Roboto', Arial, sans-serif;
+      transition: all var(--transition-speed) ease;
+    }
+    
     html { font-size: 16px; }
+    
     body {
-      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       text-align: center;
-      background-color: #f4f4f4;
       padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       min-height: 100vh;
+      position: relative;
     }
-  footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  padding: 10px;
-  background-color: #f4f4f4;
-  font-size: 14px;
-  color: black;
-  }
+
+    /* Efeito de partículas no fundo */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 12px;
+      background-color: var(--primary-color);
+      font-size: 14px;
+      color: white;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
     
-    .logo-container { margin-bottom: 5px; width: 60%; max-width: 200px; }
-    .logo-container img { width: 100%; height: auto; margin-bottom: 0; }
+    .logo-container { 
+      margin-bottom: 30px; 
+      width: 60%; 
+      max-width: 200px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .logo-container img { 
+      width: 100%; 
+      height: auto; 
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+      transition: transform 0.3s ease;
+    }
+
+    .logo-container img:hover {
+      transform: scale(1.05);
+    }
+    
     .container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       width: 100%;
-      flex: 0;
-      gap: 0.5rem;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
     }
+    
     #login-container {
-      background: #fff;
-      padding: 1rem;
-      border-radius: .5rem;
-      box-shadow: 0 0 .5rem rgba(0,0,0,0.1);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 2.5rem 2rem;
+      border-radius: 20px;
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 0 0 1px rgba(255, 255, 255, 0.2);
       width: 90%;
-      max-width: 320px;
-      margin-top: 0;
+      max-width: 400px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
     }
-    #login-container h2 { margin-bottom: .5rem; font-size: 1.25rem; }
+
+    #login-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    #login-container:hover::before {
+      left: 100%;
+    }
+    
+    #login-container h2 { 
+      margin-bottom: 1.5rem; 
+      font-size: 1.8rem;
+      color: var(--primary-color);
+      font-weight: 700;
+      letter-spacing: 1px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    #login-container h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 3px;
+      background-color: var(--primary-color);
+      border-radius: 3px;
+    }
+    
     input {
       width: 100%;
-      padding: .75rem;
-      margin: .5rem 0;
+      padding: 1rem 1.2rem;
+      margin: 0.8rem 0;
       font-size: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.9);
+      transition: all 0.3s ease;
+      outline: none;
+      position: relative;
     }
+
+    input:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(42, 100, 150, 0.1);
+      background: white;
+      transform: translateY(-2px);
+    }
+
+    input::placeholder {
+      color: #999;
+      transition: opacity 0.3s ease;
+    }
+
+    input:focus::placeholder {
+      opacity: 0.7;
+    }
+    
     button {
-      background: #0D283D;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       color: #fff;
       border: none;
-      padding: .75rem;
+      padding: 1rem 1.5rem;
       width: 100%;
-      font-size: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
       cursor: pointer;
-      border-radius: .25rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(13, 40, 61, 0.3);
+      transition: all 0.3s ease;
     }
+
+    button:hover {
+      background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 40, 61, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 10px rgba(13, 40, 61, 0.3);
+    }
+
+    button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+
+    button:focus:not(:active)::after {
+      animation: ripple 1s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+      }
+      20% {
+        transform: scale(25, 25);
+        opacity: 0.3;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(40, 40);
+      }
+    }
+    
     .error {
-      color: red;
-      font-size: .875rem;
-      margin-top: .5rem;
+      color: var(--danger-color);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      background: rgba(244, 67, 54, 0.1);
+      border-radius: 8px;
+      border-left: 4px solid var(--danger-color);
+      animation: shake 0.5s ease-in-out;
     }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* Animação de entrada */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo-container {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    #login-container {
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+    
     @media (max-width: 480px) {
       html { font-size: 14px; }
-      body { padding: .5rem; }
-      #login-container { padding: .75rem; }
-      input, button { padding: .5rem; font-size: .875rem; }
+      body { padding: 0.5rem; }
+      
+      #login-container { 
+        padding: 2rem 1.5rem;
+        margin: 1rem 0;
+      }
+      
+      input, button { 
+        padding: 0.9rem 1rem; 
+        font-size: 0.95rem; 
+      }
+
+      #login-container h2 {
+        font-size: 1.5rem;
+      }
+
+      .logo-container {
+        width: 70%;
+        max-width: 180px;
+        margin-bottom: 20px;
+      }
+    }
+
+    @media (max-width: 320px) {
+      #login-container {
+        padding: 1.5rem 1rem;
+      }
+      
+      input, button {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
