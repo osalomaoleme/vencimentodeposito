@@ -424,7 +424,7 @@
      padding: 16px 24px;
      border-radius: 10px;
      cursor: pointer;
-     font-size: clamp(14px, 2vw, 16px);
+     font-size: 16px;
      font-weight: 600;
      transition: all 0.3s ease;
      box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
@@ -434,6 +434,8 @@
      text-align: center;
      white-space: nowrap;
      position: relative;
+     min-height: 54px;
+     overflow: hidden;
     }
 
     .btn-enviar-todos:hover {
@@ -635,7 +637,7 @@
   </div>
 
   <!-- Carregar scripts na ordem correta -->
-  <script src="db.js"></script>
+  
   <script src="index.js"></script>
 
   <footer> &copy; <span id="ano"></span> Salomão Leme </footer>
