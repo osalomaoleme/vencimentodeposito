@@ -7,7 +7,7 @@ const urlsToCache = [
   "./login.html",
   "./index.js",
   "./login.js",
-  "./db.js",
+
   "./manifest.json",
   "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js",
   "./logodeltap.png"
@@ -120,7 +120,7 @@ self.addEventListener("fetch", event => {
 
           return new Response(JSON.stringify({
             status: "Erro",
-            mensagem: "Sem conexão com a internet. Os dados serão salvos localmente e sincronizados quando estiver online."
+            mensagem: "Sem conexão com a internet. Verifique sua conexão e tente novamente."
           }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' }
@@ -134,38 +134,6 @@ self.addEventListener("fetch", event => {
         return response || fetch(request);
       })
     );
-  }
-});
-
-// Sincronização em background (quando voltar online)
-self.addEventListener('sync', event => {
-  if (event.tag === 'sync-registros') {
-    console.log("Sincronização em background iniciada");
-    event.waitUntil(
-      self.clients.matchAll().then(clients => {
-        if (clients && clients.length) {
-          clients.forEach(client => {
-            client.postMessage({
-              type: 'sync-registros',
-              message: 'Sincronizando registros pendentes...'
-            });
-          });
-        }
-      })
-    );
-  }
-});
-
-// Escutar mensagens dos clientes
-self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'register-sync') {
-    self.registration.sync.register('sync-registros')
-      .then(() => {
-        console.log('Sincronização em background registrada');
-      })
-      .catch(err => {
-        console.error('Erro ao registrar sincronização:', err);
-      });
   }
 });
 
