@@ -230,6 +230,54 @@
       animation: ripple 1s ease-out;
     }
 
+    /* Spinner de loading */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 2px solid white;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .success-check {
+      display: inline-block;
+      margin-right: 8px;
+      font-size: 1.2rem;
+      animation: checkmark 0.5s ease-out;
+    }
+
+    /* Estados do botão */
+    button.loading {
+      background: linear-gradient(135deg, #666, #888) !important;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    button.success {
+      background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+      cursor: not-allowed;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes checkmark {
+      0% { 
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      100% { 
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
     @keyframes ripple {
       0% {
         transform: scale(0, 0);
