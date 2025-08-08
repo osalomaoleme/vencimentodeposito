@@ -17,7 +17,7 @@ let html5QrcodeScanner;
 let isScanning = false;
 let produtosColetados = []; // Array para armazenar produtos coletados
 
-// Função utilitária otimizada para fazer requisições
+// Função utilitária otimizada para fazer requisições - SEM HEADERS CUSTOMIZADOS
 async function fazerRequisicao(url, useCache = false) {
   // Cache simples para requisições que não mudam frequentemente
   if (useCache) {
@@ -34,13 +34,8 @@ async function fazerRequisicao(url, useCache = false) {
   }
   
   try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    });
+    // CORREÇÃO: Requisição simples sem headers customizados
+    const response = await fetch(url);
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
