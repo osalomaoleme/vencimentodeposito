@@ -22,56 +22,75 @@ async function login() {
   const errorMsg = document.getElementById("error-msg");
   const loginBtn = document.querySelector("button");
 
+  console.log("Tentando login com:", username); // Debug
+
+  // Limpar mensagens de erro anteriores
+  errorMsg.innerText = "";
+
   if (!username || !password) {
     errorMsg.innerText = "Preencha todos os campos.";
     return;
   }
 
-  // Desabilitar botão durante o login
-  if (loginBtn) {
-    loginBtn.disabled = true;
-    loginBtn.textContent = "Entrando...";
-  }
+  // Mostrar estado de loading
+  loginBtn.disabled = true;
+  loginBtn.innerHTML = '<div class="spinner"></div>Processando...';
+  loginBtn.classList.add('loading');
 
-  const params = new URLSearchParams({
+  const requestParams = new URLSearchParams({
     action: "login",
     usuario: username,
     senha: password
   });
 
   try {
-    const response = await fetch(`${scriptUrl}?${params.toString()}`, {
-      method: 'GET',
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    });
+    console.log("Fazendo requisição para:", `${scriptUrl}?${requestParams.toString()}`); // Debug
     
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
+    // Requisição simples sem headers customizados para evitar preflight
+    const response = await fetch(`${scriptUrl}?${requestParams.toString()}`);
     const result = await response.json();
 
+    console.log("Resposta do servidor:", result); // Debug
+
     if (result.status === "ok") {
+      console.log("Login bem-sucedido! Nome do operador:", result.nomeOperador); // Debug
+      
+      // Mostrar sucesso
+      loginBtn.innerHTML = '<div class="success-check">✓</div>Sucesso! Redirecionando...';
+      loginBtn.classList.remove('loading');
+      loginBtn.classList.add('success');
+      
       // Armazenar dados do usuário
       sessionStorage.setItem("usuarioLogado", result.usuario);
       sessionStorage.setItem("nomeOperador", result.nomeOperador);
       sessionStorage.setItem("planilhaId", planilhaId);
       
-      // Redirecionar imediatamente
-      window.location.href = `index.html?id=${planilhaId}`;
+      console.log("Dados salvos no sessionStorage:"); // Debug
+      console.log("- usuarioLogado:", sessionStorage.getItem("usuarioLogado"));
+      console.log("- nomeOperador:", sessionStorage.getItem("nomeOperador"));
+      console.log("- planilhaId:", sessionStorage.getItem("planilhaId"));
+      
+      // Redirecionamento com delay para mostrar o sucesso
+      setTimeout(() => {
+        window.location.href = `index.html?id=${planilhaId}`;
+      }, 1000);
+      
     } else {
+      console.log("Login falhou:", result.mensagem); // Debug
       errorMsg.innerText = result.mensagem || "Usuário ou senha incorretos.";
+      
+      // Restaurar botão
+      loginBtn.disabled = false;
+      loginBtn.innerHTML = 'Entrar';
+      loginBtn.classList.remove('loading');
     }
   } catch (err) {
+    console.error("Erro na requisição:", err);
     errorMsg.innerText = "Erro na comunicação com o servidor. Verifique sua conexão.";
-  } finally {
-    // Reabilitar botão
-    if (loginBtn) {
-      loginBtn.disabled = false;
-      loginBtn.textContent = "Entrar";
-    }
+    
+    // Restaurar botão
+    loginBtn.disabled = false;
+    loginBtn.innerHTML = 'Entrar';
+    loginBtn.classList.remove('loading');
   }
 }
