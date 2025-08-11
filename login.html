@@ -25,6 +25,7 @@
       --success-color: #44ff44;
       --warning-color: #ff4444;
       --transition-speed: 0.3s;
+      --footer-height: 50px;
     }
 
     * { 
@@ -35,19 +36,22 @@
       transition: all var(--transition-speed) ease;
     }
     
-    html { font-size: 16px; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-size: 16px;
+    }
     
     body {
       background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      text-align: center;
-      padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
       position: relative;
-      padding-bottom: 80px; /* Espaço para o footer */
+      min-height: 100vh;
+      max-height: 100vh;
+      padding: 10px;
     }
 
     /* Efeito de partículas no fundo */
@@ -66,26 +70,25 @@
       z-index: 0;
     }
 
-    footer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      text-align: center;
-      padding: 12px;
-      background-color: var(--primary-color);
-      font-size: 14px;
-      color: white;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-      z-index: 10;
+      height: calc(100vh - var(--footer-height));
+      position: relative;
+      z-index: 1;
+      max-width: 400px;
     }
-    
+
     .logo-container { 
-      margin-bottom: 30px; 
-      width: 60%; 
+      margin-bottom: clamp(15px, 4vh, 30px);
+      width: clamp(120px, 40vw, 200px);
       max-width: 200px;
       position: relative;
       z-index: 1;
+      flex-shrink: 0;
     }
     
     .logo-container img { 
@@ -99,30 +102,24 @@
       transform: scale(1.05);
     }
     
-    .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      gap: 1rem;
-      position: relative;
-      z-index: 1;
-    }
-    
     #login-container {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      padding: 2.5rem 2rem;
-      border-radius: 20px;
+      padding: clamp(20px, 5vh, 40px) clamp(15px, 4vw, 32px);
+      border-radius: clamp(12px, 3vw, 20px);
       box-shadow: 
         0 20px 40px rgba(0, 0, 0, 0.1),
         0 0 0 1px rgba(255, 255, 255, 0.2);
-      width: 90%;
+      width: 100%;
       max-width: 400px;
       border: 1px solid rgba(255, 255, 255, 0.2);
       position: relative;
       overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
     }
 
     #login-container::before {
@@ -141,13 +138,15 @@
     }
     
     #login-container h2 { 
-      margin-bottom: 1.5rem; 
-      font-size: 1.8rem;
+      margin-bottom: clamp(15px, 4vh, 24px);
+      font-size: clamp(20px, 5vw, 28px);
       color: var(--primary-color);
       font-weight: 700;
       letter-spacing: 1px;
       position: relative;
-      padding-bottom: 10px;
+      padding-bottom: 8px;
+      text-align: center;
+      flex-shrink: 0;
     }
 
     #login-container h2::after {
@@ -156,19 +155,27 @@
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 50px;
-      height: 3px;
+      width: 40px;
+      height: 2px;
       background-color: var(--primary-color);
-      border-radius: 3px;
+      border-radius: 2px;
+    }
+
+    .form-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
     }
     
     input {
       width: 100%;
-      padding: 1rem 1.2rem;
-      margin: 0.8rem 0;
-      font-size: 1rem;
+      padding: clamp(12px, 3vh, 16px) clamp(12px, 3vw, 20px);
+      margin: clamp(6px, 2vh, 12px) 0;
+      font-size: clamp(14px, 4vw, 16px);
       border: 2px solid #e0e0e0;
-      border-radius: 12px;
+      border-radius: clamp(8px, 2vw, 12px);
       background: rgba(255, 255, 255, 0.9);
       transition: all 0.3s ease;
       outline: none;
@@ -177,9 +184,9 @@
 
     input:focus {
       border-color: var(--accent-color);
-      box-shadow: 0 0 0 3px rgba(42, 100, 150, 0.1);
+      box-shadow: 0 0 0 2px rgba(42, 100, 150, 0.1);
       background: white;
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
 
     input::placeholder {
@@ -195,17 +202,21 @@
       background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       color: #fff;
       border: none;
-      padding: 1rem 1.5rem;
+      padding: clamp(12px, 3vh, 16px) clamp(12px, 3vw, 24px);
       width: 100%;
-      font-size: 1.1rem;
+      font-size: clamp(14px, 4vw, 18px);
       font-weight: 600;
       cursor: pointer;
-      border-radius: 12px;
-      margin-top: 1rem;
+      border-radius: clamp(8px, 2vw, 12px);
+      margin-top: clamp(10px, 2vh, 16px);
       position: relative;
       overflow: hidden;
       box-shadow: 0 4px 15px rgba(13, 40, 61, 0.3);
       transition: all 0.3s ease;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     button:hover {
@@ -237,6 +248,54 @@
       animation: ripple 1s ease-out;
     }
 
+    /* Spinner de loading */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 2px solid white;
+      animation: spin 1s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .success-check {
+      display: inline-block;
+      margin-right: 6px;
+      font-size: 1.1rem;
+      animation: checkmark 0.5s ease-out;
+    }
+
+    /* Estados do botão */
+    button.loading {
+      background: linear-gradient(135deg, #666, #888) !important;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    button.success {
+      background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+      cursor: not-allowed;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes checkmark {
+      0% { 
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      100% { 
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
     @keyframes ripple {
       0% {
         transform: scale(0, 0);
@@ -254,26 +313,27 @@
     
     .error {
       color: var(--danger-color);
-      font-size: 0.9rem;
-      margin-top: 1rem;
-      padding: 0.8rem;
+      font-size: clamp(12px, 3.5vw, 14px);
+      margin-top: clamp(8px, 2vh, 16px);
+      padding: clamp(8px, 2vh, 12px);
       background: rgba(244, 67, 54, 0.1);
-      border-radius: 8px;
-      border-left: 4px solid var(--danger-color);
+      border-radius: 6px;
+      border-left: 3px solid var(--danger-color);
       animation: shake 0.5s ease-in-out;
+      text-align: center;
     }
 
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
     }
 
     /* Animação de entrada */
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
       }
       to {
         opacity: 1;
@@ -288,67 +348,231 @@
     #login-container {
       animation: fadeInUp 0.8s ease-out 0.2s both;
     }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: var(--footer-height);
+      text-align: center;
+      padding: 8px;
+      background-color: var(--primary-color);
+      font-size: clamp(10px, 3vw, 12px);
+      color: white;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     
-    @media (max-width: 480px) {
-      html { font-size: 14px; }
-      body { padding: 0.5rem; }
-      
-      #login-container { 
-        padding: 2rem 1.5rem;
-        margin: 1rem 0;
+    /* Media queries específicas para alturas pequenas */
+    @media screen and (max-height: 600px) {
+      :root {
+        --footer-height: 40px;
       }
       
-      input, button { 
-        padding: 0.9rem 1rem; 
-        font-size: 0.95rem; 
-      }
-
-      #login-container h2 {
-        font-size: 1.5rem;
-      }
-
       .logo-container {
-        width: 70%;
-        max-width: 180px;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
+        width: clamp(80px, 35vw, 150px);
+      }
+      
+      #login-container {
+        padding: 15px 20px;
+      }
+      
+      #login-container h2 {
+        margin-bottom: 12px;
+        font-size: clamp(18px, 4.5vw, 22px);
+      }
+      
+      input {
+        padding: 10px 14px;
+        margin: 4px 0;
+      }
+      
+      button {
+        padding: 10px 18px;
+        margin-top: 8px;
+        min-height: 40px;
       }
     }
 
-    @media (max-width: 320px) {
-      #login-container {
-        padding: 1.5rem 1rem;
+    @media screen and (max-height: 500px) {
+      :root {
+        --footer-height: 35px;
       }
       
-      input, button {
-        padding: 0.8rem;
-        font-size: 0.9rem;
+      .logo-container {
+        margin-bottom: 8px;
+        width: clamp(70px, 30vw, 120px);
+      }
+      
+      #login-container {
+        padding: 12px 16px;
+      }
+      
+      #login-container h2 {
+        margin-bottom: 8px;
+        font-size: clamp(16px, 4vw, 20px);
+      }
+      
+      input {
+        padding: 8px 12px;
+        margin: 3px 0;
+      }
+      
+      button {
+        padding: 8px 16px;
+        margin-top: 6px;
+        min-height: 36px;
+      }
+    }
+
+    /* Media queries para larguras pequenas */
+    @media screen and (max-width: 350px) {
+      body {
+        padding: 8px;
+      }
+      
+      #login-container {
+        padding: 16px 12px;
+      }
+      
+      .logo-container {
+        width: clamp(100px, 40vw, 160px);
+      }
+    }
+
+    @media screen and (max-width: 280px) {
+      body {
+        padding: 5px;
+      }
+      
+      #login-container {
+        padding: 12px 10px;
+      }
+      
+      input {
+        padding: 8px 10px;
+      }
+      
+      button {
+        padding: 8px 12px;
+      }
+    }
+
+    /* Landscape em dispositivos pequenos */
+    @media screen and (max-height: 450px) and (orientation: landscape) {
+      :root {
+        --footer-height: 35px;
+      }
+      
+      body {
+        padding: 5px;
+      }
+      
+      .main-content {
+        flex-direction: row;
+        gap: 20px;
+        align-items: center;
+        max-width: 600px;
+      }
+      
+      .logo-container {
+        margin-bottom: 0;
+        width: clamp(80px, 20vw, 120px);
+        flex-shrink: 0;
+      }
+      
+      #login-container {
+        flex: 1;
+        max-width: 350px;
+        padding: 15px 20px;
+      }
+      
+      #login-container h2 {
+        margin-bottom: 10px;
+        font-size: clamp(16px, 4vw, 20px);
+      }
+      
+      input {
+        padding: 8px 12px;
+        margin: 3px 0;
+      }
+      
+      button {
+        padding: 8px 16px;
+        margin-top: 6px;
+        min-height: 36px;
+      }
+    }
+
+    /* Ajustes para dispositivos muito pequenos em landscape */
+    @media screen and (max-height: 350px) and (orientation: landscape) {
+      .main-content {
+        gap: 15px;
+      }
+      
+      .logo-container {
+        width: clamp(60px, 18vw, 100px);
+      }
+      
+      #login-container {
+        padding: 10px 15px;
+      }
+      
+      #login-container h2 {
+        margin-bottom: 6px;
+        font-size: 16px;
+      }
+      
+      input {
+        padding: 6px 10px;
+        margin: 2px 0;
+        font-size: 14px;
+      }
+      
+      button {
+        padding: 6px 12px;
+        margin-top: 4px;
+        min-height: 32px;
+        font-size: 14px;
+      }
+      
+      .error {
+        padding: 6px;
+        margin-top: 4px;
+        font-size: 12px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="logo-container">
-    <img src="logodeltap.png" alt="Logo DeltaP" />
-  </div>
-  <div class="container">
+  <div class="main-content">
+    <div class="logo-container">
+      <img src="logodeltap.png" alt="Logo DeltaP" />
+    </div>
     <div id="login-container">
       <h2>Login</h2>
-      <input type="text" id="username" placeholder="Usuário" autocomplete="off">
-      <input type="tel" id="password" placeholder="Senha" maxlength="6"
-        style="-webkit-text-security: disc;" inputmode="numeric" pattern="\\d*"
-        autocomplete="off">
-      <button onclick="login()">Entrar</button>
-      <p id="error-msg" class="error"></p>
+      <div class="form-content">
+        <input type="text" id="username" placeholder="Usuário" autocomplete="off">
+        <input type="tel" id="password" placeholder="Senha" maxlength="6"
+          style="-webkit-text-security: disc;" inputmode="numeric" pattern="\\d*"
+          autocomplete="off">
+        <button onclick="login()">Entrar</button>
+        <p id="error-msg" class="error"></p>
+      </div>
     </div>
   </div>
 
   <script src="login.js"></script>
 
-  
   <footer> &copy; <span id="ano"></span> Salomão Leme </footer>
 
-<script>
-  document.getElementById("ano").textContent = new Date().getFullYear();
-</script>
+  <script>
+    document.getElementById("ano").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
